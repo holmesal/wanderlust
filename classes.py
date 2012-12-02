@@ -22,6 +22,9 @@ class GHash(ndb.Model):
 		lon,lat,lon,lat, (bottom left, top right)
 		'''
 		bbox = geohash.bbox(self.name)
+		bbox_list = [
+					]
+		{'s': 42.3687744140625, 'e': -71.03759765625, 'w': -71.048583984375, 'n': 42.374267578125}
 		
 class Node(ndb.Model):
 	# position of this node in the way
