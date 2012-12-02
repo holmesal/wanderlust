@@ -17,9 +17,10 @@ class Osm(object):
 		assert type(ghash_entity) == classes.GHash,type(ghash_entity)
 		self.ghash_entity = ghash_entity
 		
+		bbox = self.ghash_entity.bbox
 #		bbox = geohash.bbox(ghash_entity.name)
-#		assert False, bbox
-		bbox = [-71.0442,42.3622,-71.027,42.3697]
+##		assert False, bbox
+#		bbox = [-71.0442,42.3622,-71.027,42.3697]
 		assert type(bbox) == list, 'Must pass in bounding box as a 4-element list - lon,lat,lon,lat'
 		
 		filt_string = ''
