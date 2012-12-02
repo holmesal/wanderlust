@@ -38,8 +38,11 @@ class Osm(object):
 		self.root = ET.fromstring(result.content)
 		
 		self.parse()
+		
+	def get_nature(self):
+		
 	
-	def parse(self):
+	def get_roads(self):
 	
 		#empty node dict
 		nodes = {}
