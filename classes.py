@@ -4,12 +4,11 @@ from geo import geohash
 
 
 class GHash(ndb.Model):
-	center = ndb.GeoPtProperty(required=True)
-	corners = ndb.ComputedProperty(lambda self: geohash.bbox(self.center[:5]))
+	buildings = ndb.KeyProperty()
+	roads = ndb.KeyProperty()
+	nature = ndb.KeyProperty()
 
 class Node(ndb.Model):
-	# the numeric openmaps id for this node
-	id = ndb.IntegerProperty(required=True)
 	# position of this node in the way
 	idx = ndb.IntegerProperty(required=True)
 	# the node's position
@@ -23,10 +22,32 @@ class Node(ndb.Model):
 				)
 			)
 
-class Shape(polymodel.PolyModel):
-	nodes = ndb.StructuredProperty(Node,repeated=True)
-	
 class Road(ndb.Model):
-	pass
+	# the actual nodes
+	nodes = ndb.StructuredProperty(Node,repeated=True)
+
 class Building(ndb.Model):
-	pass
+	nodes = ndb.StructuredProperty(Node,repeated=True)
+	# the building does not have a shape definition from open maps
+	geo_point = ndb.GeoPtProperty(indexed=False)
+	# the node's geohash
+	geo_hash = ndb.ComputedProperty(
+			lambda self: geohash.encode(
+				latitude = self.geo_point.lat,
+				longitude = self.geo_point.lon,
+				precision = 9
+				)
+			)
+class Nature(ndb.Model):
+	# the building has a shape definition from open maps
+	nodes = ndb.StructuredProperty(Node,repeated=True)
+	# the building does not have a shape definition from open maps
+	geo_point = ndb.GeoPtProperty(indexed=False)
+	# the node's geohash
+	geo_hash = ndb.ComputedProperty(
+			lambda self: geohash.encode(
+				latitude = self.geo_point.lat,
+				longitude = self.geo_point.lon,
+				precision = 9
+				)
+			)
