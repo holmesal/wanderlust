@@ -7,7 +7,7 @@ from google.appengine.api import urlfetch
 from google.appengine.ext import ndb
 import xml.etree.ElementTree as ET
 
-# import classes
+import classes
 
 
 class Osm(object):
@@ -49,20 +49,31 @@ class Osm(object):
 				#nodes should be at the top
 				geo = ndb.GeoPt(child.attrib['lat'],child.attrib['lon'])
 				node = classes.Node(geo_point=geo)
-				nodes.extend({child.attrib["id"]:node})
+				nodes.update({child.attrib["id"]:node})
 			elif child.tag=='way':
-				nodes = []
+				way_nodes = []
+				road_type = ""
+				road_name = ""
 				for child in child:
-					logging.info(child.tag)
 					if child.tag == 'nd':
-						#get node reference
-						ref = child.attrib['ref']
-						#go get the node
-# 						xml_node = 
-# 						geo = ndb.GeoPt(chi)
-# 						node = classes.Node()
-			
-
+						#save node rederence in order
+						way_nodes.append(nodes[child.attrib['ref']])
+# 						logging.info(way_nodes)
+					
+					elif child.attrib['k']=='highway':
+						road_type = child.attrib['v']
+					elif child.attrib['k']=='name':
+						road_name = child.attrib['v']
+# 					else:
+# 						logging.info(child.attrib)
+				
+				#grab the required nodes and create the entity
+				for idx,way_node in enumerate(way_nodes):
+					way_node.idx = idx
+					logging.info(idx)
+					
+				#create the road
+				road = classes.Road(nodes=way_nodes)
 
 class OsmHandler(webapp2.RequestHandler):
 	def get(self):
