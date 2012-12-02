@@ -43,6 +43,7 @@ class Osm(object):
 	
 		#empty node dict
 		nodes = {}
+		roads = []
 		
 		for child in self.root:
 			if child.tag=='node':
@@ -73,7 +74,15 @@ class Osm(object):
 					logging.info(idx)
 					
 				#create the road
-				road = classes.Road(nodes=way_nodes)
+# 				road = classes.Road(nodes=way_nodes,road_type=road_type,road_name=road_name,parent=self.ghashentity)
+				road = classes.Road(nodes=way_nodes,road_type=road_type,road_name=road_name)
+				
+				#push the road onto the array
+				roads.append(road)
+			
+			#store the array in the db
+			roads.put()
+				
 
 class OsmHandler(webapp2.RequestHandler):
 	def get(self):
