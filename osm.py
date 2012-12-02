@@ -30,7 +30,7 @@ class Osm(object):
 		base_url = 'http://www.overpass-api.de/api/xapi?*[bbox='+str(bbox[0])+','+str(bbox[1])+','+str(bbox[2])+','+str(bbox[3])+']'
 		
 		if layer == "roads":
-			self.url = base_url
+			self.url = base_url 
 		
 		
 		filt_string = ''
