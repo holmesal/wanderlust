@@ -11,20 +11,27 @@ class GHash(ndb.Model):
 	@property
 	def name(self):
 		'''
-		Returns the geohash string
+		@return: The geo_hash string that is the id of this entity
+		@rtype: str
 		'''
-		# returns the geohash string
 		return self.key.string_id()
 	@property
 	def bbox(self):
 		'''
 		Returns the bounding box of the ghash in form 
 		lon,lat,lon,lat, (bottom left, top right)
+		
+		@return: the bounding box of the ghash in form: lon,lat,lon,lat, (bottom left, top right)
+		@rtype: list
 		'''
 		bbox = geohash.bbox(self.name)
 		bbox_list = [
+					bbox['w'],
+					bbox['s'],
+					bbox['e'],
+					bbox['n']
 					]
-		{'s': 42.3687744140625, 'e': -71.03759765625, 'w': -71.048583984375, 'n': 42.374267578125}
+		return bbox_list
 		
 class Node(ndb.Model):
 	# position of this node in the way

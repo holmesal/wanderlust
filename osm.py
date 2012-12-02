@@ -45,7 +45,7 @@ class Osm(object):
 		self.parse()
 		
 	def get_nature(self):
-		
+		pass
 	
 	def get_roads(self):
 	
@@ -61,6 +61,7 @@ class Osm(object):
 				nodes.extend({child.attrib["id"]:node})
 			elif child.tag=='way':
 				nodes = []
+				way_nodes = []
 				for child in child:
 					logging.info(child.tag)
 					if child.tag == 'nd':
