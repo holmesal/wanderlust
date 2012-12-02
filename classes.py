@@ -37,8 +37,11 @@ class Shape(polymodel.PolyModel):
 
 class Road(Shape):
 	road_type = ndb.StringProperty(required=True)
-	
+	road_name = ndb.StringProperty()
 class Building(Shape):
 	pass
 class Nature(Shape):
 	pass
+
+
+
