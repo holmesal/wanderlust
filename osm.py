@@ -13,15 +13,25 @@ from geo import geohash
 
 class Osm(object):
 	
-	def __init__(self,ghash_entity,filters=None):
+	def __init__(self,ghash_entity,layer):
 		assert type(ghash_entity) == classes.GHash,type(ghash_entity)
 		self.ghash_entity = ghash_entity
-		
+
 		bbox = self.ghash_entity.bbox
+
+		assert layer in ["roads","nature","buildings"], "Must pass a valid layer string: roads, nature, or buildings"
+		self.layer = layer
+		
 #		bbox = geohash.bbox(ghash_entity.name)
 ##		assert False, bbox
 #		bbox = [-71.0442,42.3622,-71.027,42.3697]
 		assert type(bbox) == list, 'Must pass in bounding box as a 4-element list - lon,lat,lon,lat'
+		
+		base_url = 'http://www.overpass-api.de/api/xapi?*[bbox='+str(bbox[0])+','+str(bbox[1])+','+str(bbox[2])+','+str(bbox[3])+']'
+		
+		if layer == "roads":
+			self.url = base_url
+		
 		
 		filt_string = ''
 		
@@ -37,7 +47,7 @@ class Osm(object):
 		
 		logging.info(self.url)
 		
-	def get_data(self):
+	def getdata(self):
 		result = urlfetch.fetch(self.url)
 		
 		self.xml = result.content
@@ -99,7 +109,7 @@ class OsmHandler(webapp2.RequestHandler):
 		ghash = geohash.encode(geo_point[0], geo_point[1], classes.GHash._precision)
 		
 		geo_hash_entity = classes.GHash.get_or_insert(ghash)
-		osm = Osm(geo_hash_entity,{'building':'*'})
+		osm = Osm(geo_hash_entity,roads)
 		osm.getdata()
 
 app = webapp2.WSGIApplication([('/osm',OsmHandler)])
