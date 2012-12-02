@@ -1,5 +1,5 @@
-application: levr-development
-version: t
+application: wanderlust
+version: 1
 runtime: python27
 api_version: 1
 threadsafe: true
@@ -10,6 +10,8 @@ default_expiration: "1m"
 handlers:
 - url: /
   script: landing.app
+- url: /osm
+  script: osm.app
 
 
 #tasks and cronjobs
