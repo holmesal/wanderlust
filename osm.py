@@ -31,7 +31,7 @@ class Osm(object):
 		logging.info(self.url)
 		
 		
-	def getdata(self):
+	def get_data(self):
 		result = urlfetch.fetch(self.url)
 		
 		self.xml = result.content
