@@ -34,10 +34,10 @@ class Shape(polymodel.PolyModel):
 				precision = 9
 				)
 			)
-	
-class Road(Shape):
-	pass
 
+class Road(Shape):
+	road_type = ndb.StringProperty(required=True)
+	
 class Building(Shape):
 	pass
 class Nature(Shape):

@@ -29,3 +29,4 @@ class PopulateGHash(object):
 		return ghash_entity
 	
 	def create_nature_object(self):
+		pass
