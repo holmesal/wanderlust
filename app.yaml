@@ -1,0 +1,64 @@
+application: levr-development
+version: t
+runtime: python27
+api_version: 1
+threadsafe: true
+default_expiration: "1m"
+
+
+
+handlers:
+- url: /
+  script: landing.app
+
+
+#tasks and cronjobs
+- url: /tasks.*
+  script: tasks.app
+  login: admin
+- url: /cronjobs.*
+  script: cron_jobs.app
+  login: admin
+  
+
+- url: /img
+  static_dir: img
+- url: /css
+  static_dir: css
+- url: /js
+  static_dir: js
+- url: /beta
+  static_dir: beta
+
+- url: /robots.txt
+  static_files: robots.txt
+  upload: robots.txt
+- url: /sitemap.xml
+  static_files: sitemap.xml
+  upload: sitemap.xml
+
+
+libraries:
+- name: jinja2
+  version: latest
+- name: pycrypto
+  version: 2.3
+
+builtins:
+- appstats: on
+- deferred: on
+
+
+skip_files:
+- ^(.*/)?app\.yaml
+- ^(.*/)?app\.yml
+- ^(.*/)?index\.yaml
+- ^(.*/)?index\.yml
+- ^(.*/)?#.*#
+- ^(.*/)?.*~
+- ^(.*/)?.*\.py[co]
+- ^(.*/)?.*/RCS/.*
+- ^(.*/)?\..*
+- ^(.*/)?.*\.bak$
+- ^boto/
+- ^Crypto/
