@@ -4,10 +4,25 @@ from geo import geohash
 
 
 class GHash(ndb.Model):
+	_precision = 6
 	buildings = ndb.KeyProperty()
 	roads = ndb.KeyProperty()
 	nature = ndb.KeyProperty()
-
+	@property
+	def name(self):
+		'''
+		Returns the geohash string
+		'''
+		# returns the geohash string
+		return self.key.string_id()
+	@property
+	def bbox(self):
+		'''
+		Returns the bounding box of the ghash in form 
+		lon,lat,lon,lat, (bottom left, top right)
+		'''
+		bbox = geohash.bbox(self.name)
+		
 class Node(ndb.Model):
 	# position of this node in the way
 	idx = ndb.IntegerProperty()
