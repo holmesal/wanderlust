@@ -50,15 +50,6 @@ class Node(ndb.Model):
 class Shape(polymodel.PolyModel):
 	# has a shape definition from open maps
 	nodes = ndb.StructuredProperty(Node,repeated=True)
-	# does not have a shape definition from open maps
-	geo_point = ndb.GeoPtProperty(indexed=False)
-	geo_hash = ndb.ComputedProperty(
-			lambda self: geohash.encode(
-				latitude = self.geo_point.lat,
-				longitude = self.geo_point.lon,
-				precision = 9
-				)
-			)
 
 class Road(Shape):
 	road_type = ndb.StringProperty(required=True)
