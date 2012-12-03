@@ -16,8 +16,6 @@ class Osm(object):
 		self.ghash_entity = ghash_entity
 
 		bbox = self.ghash_entity.bbox
-
-		assert type(bbox) == list, 'Must pass in bounding box as a 4-element list - lon,lat,lon,lat'
 		
 		self.base_url = 'http://www.overpass-api.de/api/xapi?*[bbox='+str(bbox[0])+','+str(bbox[1])+','+str(bbox[2])+','+str(bbox[3])+']'
 		
