@@ -149,11 +149,11 @@ class Osm(object):
 						way_nodes.append(copy.copy(nodes[way_child.attrib['ref']]))
 # 						logging.info(nodes[child.attrib['ref']])
 						
-					elif way_child.attrib['k']=='leisure':
-						nature_type = way_child.attrib['v']
+					elif way_child.attrib['k']=='amenity':
+						building_type = way_child.attrib['v']
 						logging.info(building_type)
 					elif way_child.attrib['k']=='name':
-						nature_name = way_child.attrib['v']
+						building_name = way_child.attrib['v']
 						logging.info(building_name)
 					
 				

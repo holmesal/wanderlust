@@ -61,9 +61,11 @@ class Road(Shape):
 	road_type = ndb.StringProperty(required=True)
 	road_name = ndb.StringProperty()
 class Building(Shape):
-	pass
+	building_type = ndb.StringProperty(required=True)
+	building_name = ndb.StringProperty()
 class Nature(Shape):
-	pass
+	building_type = ndb.StringProperty(required=True)
+	building_name = ndb.StringProperty()
 
 
 
