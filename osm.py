@@ -28,40 +28,29 @@ class Osm(object):
 #		bbox = [-71.0442,42.3622,-71.027,42.3697]
 		assert type(bbox) == list, 'Must pass in bounding box as a 4-element list - lon,lat,lon,lat'
 		
-		base_url = 'http://www.overpass-api.de/api/xapi?*[bbox='+str(bbox[0])+','+str(bbox[1])+','+str(bbox[2])+','+str(bbox[3])+']'
+		self.base_url = 'http://www.overpass-api.de/api/xapi?*[bbox='+str(bbox[0])+','+str(bbox[1])+','+str(bbox[2])+','+str(bbox[3])+']'
 		
-		if layer == "roads":
-			self.url = base_url + '[highway=*]'
-		elif layer == "nature":
-			self.url = base_url + '[leisure=park]'
-		elif layer == "buildings":
-			self.url = base_url
+		
 		
 		#build the request url
 # 		self.url = 'http://www.overpass-api.de/api/xapi?*[bbox='+str(bbox[0])+','+str(bbox[1])+','+str(bbox[2])+','+str(bbox[3])+']'+filt_string
 		
-		logging.info(self.url)
+		logging.info(self.base_url)
 		
-	def getdata(self):
-		result = urlfetch.fetch(self.url)
+	def get_data(self,url):
+		result = urlfetch.fetch(url)
 		
-		self.xml = result.content
-		self.root = ET.fromstring(result.content)
-		
-		if self.layer == "roads":
-			self.get_roads()
-		elif self.layer == "nature":
-			self.get_nature()
-		elif self.layer == "buildings":
-			self.get_buildings()
+		root = ET.fromstring(result.content)
+		return root
 		
 	def get_roads(self):
-	
+		url = self.base_url + '[highway=*]'
+		root = self.get_data(url)
 		#empty node dict
 		nodes = {}
 		roads = []
 		
-		for child in self.root:
+		for child in root:
 			if child.tag=='node':
 				#nodes should be at the top
 				geo = ndb.GeoPt(child.attrib['lat'],child.attrib['lon'])
