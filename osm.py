@@ -31,7 +31,6 @@ class Osm(object):
 		self.base_url = 'http://www.overpass-api.de/api/xapi?*[bbox='+str(bbox[0])+','+str(bbox[1])+','+str(bbox[2])+','+str(bbox[3])+']'
 		
 		
-		
 		#build the request url
 # 		self.url = 'http://www.overpass-api.de/api/xapi?*[bbox='+str(bbox[0])+','+str(bbox[1])+','+str(bbox[2])+','+str(bbox[3])+']'+filt_string
 		
@@ -72,14 +71,10 @@ class Osm(object):
 						road_type = way_child.attrib['v']
 					elif way_child.attrib['k']=='name':
 						road_name = way_child.attrib['v']
-# 					else:
-# 						logging.info(child.attrib)
-				
+
 				#grab the required nodes and create the entity
 				for idx,way_node in enumerate(way_nodes):
 					way_node.idx = idx
-				for node in way_nodes:
-					logging.info(node.idx)
 					
 				#create the road
 				road = classes.Road(nodes=way_nodes,road_type=road_type,road_name=road_name,parent=self.ghash_entity.key,id=child.attrib["id"])
@@ -91,10 +86,50 @@ class Osm(object):
 		ndb.put_multi(roads)
 		
 	def get_nature(self):
-		pass
+		
+		#empty node dict
+		nodes = {}
+		natures = []
+		
+		for child in self.root:
+			if child.tag=='node':
+				#nodes should be at the top
+				geo = ndb.GeoPt(child.attrib['lat'],child.attrib['lon'])
+				node = classes.Node(geo_point=geo)
+				nodes.update({child.attrib["id"]:node})
+			elif child.tag=='way':
+				way_nodes = []
+				nature_name = ""
+				for way_child in child:
+# 					logging.info(child.tag)
+					if way_child.tag == 'nd':
+						#save node rederence in order
+						way_nodes.append(copy.copy(nodes[way_child.attrib['ref']]))
+# 						logging.info(nodes[child.attrib['ref']])
+						
+					elif way_child.attrib['k']=='leisure':
+# 						road_type = way_child.attrib['v']
+						logging.info(way_child.attrib['v'])
+					elif way_child.attrib['k']=='name':
+						park_name = way_child.attrib['v']
+					
+				
+				#grab the required nodes and create the entity
+				for idx,way_node in enumerate(way_nodes):
+					way_node.idx = idx
+					
+				#create the road
+				nature = classes.Road(nodes=way_nodes,parent=self.ghash_entity.key,id=child.attrib["id"])
+				
+				#push the road onto the array
+				natures.append(nature)
+		
+		
 		
 	def get_buildings(self):
 		pass
+		
+	
 	
 
 				
@@ -105,7 +140,7 @@ class OsmHandler(webapp2.RequestHandler):
 		ghash = geohash.encode(geo_point[0], geo_point[1], classes.GHash._precision)
 		
 		geo_hash_entity = classes.GHash.get_or_insert(ghash)
-		osm = Osm(geo_hash_entity,"roads")
+		osm = Osm(geo_hash_entity,"nature")
 		osm.getdata()
 
 app = webapp2.WSGIApplication([('/osm',OsmHandler)])
