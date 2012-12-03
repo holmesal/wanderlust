@@ -36,25 +36,27 @@ class FetchData(object):
 			ghash_key_list.append(ndb.Key(classes.GHash,ghash))
 		
 		return ghash_key_list
-	
-	def _fetch_roads(self):
-		for ghash in self.ghash_keys:
-			roads = classes.Road.query(ancestor=ghash).fetch(None)
-		return roads
-	def _fetch_buildings(self):
-		for ghash in self.ghash_keys:
-			buildings = classes.Building.query(ancestor=ghash).fetch(None)
-		return buildings
-	def _fetch_nature(self):
-		for ghash in self.ghash_keys:
-			nature = classes.Nature.query(ancestor=ghash).fetch(None)
-		return nature
 	def fetch_ground(self):
 		'''
-		Fetches everything on the ground layer
+		@return: everything on the ground layer for each ghash - list of lists
+		@rtype: list
 		'''
-		
-	def fetch_buildings(self,ghash_keys):
+		ground_lists = []
+		for ghash in self.ghash_keys:
+			ground_lists.append(classes.Ground.query(ancestor=ghash).fetch(None))
+		return ground_lists
+	def fetch_buildings(self):
+		'''
+		Fetches everything on the buildings layer
+		@return: everything on the buildings layer for each ghash - list of lists
+		@rtype: list
+		'''
+		building_lists = []
+		for ghash in self.ghash_keys:
+			building_lists.append(classes.Nature.query(ancestor=ghash).fetch(None))
+		return building_lists
+	
+	def package_ground(self,ground_lists):
 		
 		
 
