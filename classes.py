@@ -56,19 +56,32 @@ class Shape(polymodel.PolyModel):
 	
 	def package(self):
 		return self.to_dict()
+
+class Ground(Shape):
+	pass
+class Road(Ground):
+	'''
 	
+	'''
+	subtype = ndb.StringProperty(required=True)
+	subname = ndb.StringProperty()
+class Leisure(Ground):
+	'''
+	Urban wildlife
+	'''
+	subtype = ndb.StringProperty(required=True)
+	subname = ndb.StringProperty()
+class Nature(Ground):
+	'''
+	Wildlife stuff
+	'''
+	subtype = ndb.StringProperty(required=True)
+	subname = ndb.StringProperty()
 
-class Road(Shape):
-	subtype = ndb.StringProperty(required=True)
-	subname = ndb.StringProperty()
-class Leisure(Shape):
-	subtype = ndb.StringProperty(required=True)
-	subname = ndb.StringProperty()
 class Building(Shape):
+	'''
+	
+	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
-class Nature(Shape):
-	subtype = ndb.StringProperty(required=True)
-	subname = ndb.StringProperty()
-
 
