@@ -27,10 +27,18 @@ class FetchData(object):
 		
 		return ghash_key_list
 	
-	def fetch_roads(self):
-		for ghash in self.ghash_keys:
+	def fetch_roads(self,ghash_keys):
+		for ghash in ghash_keys:
 			roads = classes.Road.query(ancestor=ghash).fetch(None)
-		
-		# mesh the roads together
-		# assumess that the roads share a common point from ghash to ghash
+		return roads
+	def fetch_buildings(self,ghash_keys):
+		for ghash in ghash_keys:
+			buildings = classes.Building.query(ancestor=ghash).fetch(None)
+		return buildings
+	def fetch_nature(self,ghash_keys):
+		for ghash in ghash_keys:
+			nature = classes.Nature.query(ancestor=ghash).fetch(None)
+		return nature
+	def package_roads(self,roads):
+		pass
 		

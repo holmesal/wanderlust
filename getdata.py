@@ -15,5 +15,7 @@ class GetDataHandler(webapp2.RequestHandler):
 		geo_hash_entity = classes.GHash.get_or_insert(ghash)
 		tile = osm.Osm(geo_hash_entity)
 		tile.get_nature()
+		tile.get_roads()
+		tile.get_buildings()
 
 app = webapp2.WSGIApplication([('/getdata',GetDataHandler)])
