@@ -55,10 +55,10 @@ class Osm(object):
 					
 					elif way_child.attrib['k']=='highway':
 						road_type = way_child.attrib['v']
-						logging.info(road_name)
+						logging.info(road_type)
 					elif way_child.attrib['k']=='name':
 						road_name = way_child.attrib['v']
-						logging.info(road_type)
+						logging.info(road_name)
 
 				#grab the required nodes and create the entity
 				for idx,way_node in enumerate(way_nodes):
@@ -111,7 +111,7 @@ class Osm(object):
 					way_node.idx = idx
 					
 				#create the nature
-				nature = classes.Nature(nodes=way_nodes,parent=self.ghash_entity.key,id=child.attrib["id"])
+				nature = classes.Nature(nodes=way_nodes,nature_type=nature_type,nature_name=nature_name,parent=self.ghash_entity.key,id=child.attrib["id"])
 				
 				#push the nature onto the array
 				natures.append(nature)
@@ -162,7 +162,7 @@ class Osm(object):
 					way_node.idx = idx
 					
 				#create the building
-				building = classes.Building(nodes=way_nodes,parent=self.ghash_entity.key,id=child.attrib["id"])
+				building = classes.Building(nodes=way_nodes,building_type=building_type,building_name=building_name,parent=self.ghash_entity.key,id=child.attrib["id"])
 				
 				#push the building onto the array
 				buildings.append(building)

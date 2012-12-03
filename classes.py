@@ -46,7 +46,7 @@ class Node(ndb.Model):
 
 class Shape(polymodel.PolyModel):
 	# has a shape definition from open maps
-	nodes = ndb.StructuredProperty(Node,repeated=True,required=True)
+	nodes = ndb.StructuredProperty(Node,repeated=True)
 class Point(polymodel.PolyModel):
 	geo_point = ndb.GeoPtProperty(required=True, indexed = False)
 #	geo_hash = ndb.ComputedProperty(
@@ -64,8 +64,8 @@ class Building(Shape):
 	building_type = ndb.StringProperty(required=True)
 	building_name = ndb.StringProperty()
 class Nature(Shape):
-	building_type = ndb.StringProperty(required=True)
-	building_name = ndb.StringProperty()
+	nature_type = ndb.StringProperty(required=True)
+	nature_name = ndb.StringProperty()
 
 
 
