@@ -13,7 +13,7 @@ class GetDataHandler(webapp2.RequestHandler):
 		ghash = geohash.encode(geo_point[0], geo_point[1], classes.GHash._precision)
 		
 		geo_hash_entity = classes.GHash.get_or_insert(ghash)
-		tile = osm.Osm(geo_hash_entity)
+		tile = osm.Osm(geo_hash_entity) 
 		tile.get_nature()
 		tile.get_roads()
 		tile.get_buildings()
