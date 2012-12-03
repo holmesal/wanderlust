@@ -37,7 +37,7 @@ class BaseHandler(webapp2.RequestHandler):
 				}
 		self.response.out.write(json.dumps(reply))
 
-class GHashData(object):
+class EnvironmentData(object):
 	'''
 	A class for grabbing environmental data from a GHash
 	'''
@@ -70,31 +70,41 @@ class GHashData(object):
 	#===========================================================================
 	# Fetching data from a GHash
 	#===========================================================================
-	def fetch_ground(self):
+	def fetch_ground_futures(self):
 		'''
-		Fetches everything on the ground layer. Convenience wrapper
 		@return: everything on the ground layer for each ghash - list of lists
 		@rtype: list
 		'''
-		return self.fetch(classes.Ground)
-	def fetch_structures(self):
+		return self.fetch_futures(classes.Ground)
+	def fetch_structure_futures(self):
 		'''
-		Fetches everything on the structure layer. Convenience wrapper
 		@return: everything on the structure layer for each ghash - list of lists
 		@rtype: list
 		'''
-		return self.fetch(classes.Structure)
-	def fetch(self,model_class):
-		'''
-		General function for fetching everything of a certain kind from ghashes
-		@param model_class: The model kind of which you desire, e.g. classes.Structure
-		@type model_class: ndb.polymodel.Polymodel
-		
-		@return: a list of lists of stuff in each ghash. sub lists correspond to the parent ghash
-		@rtype: list
+		return self.fetch_futures(classes.Structure)
+	def fetch_futures(self,model_class):
 		'''
 		
-		return [model_class.query(ancestor=ghash).fetch(None) for ghash in self.ghash_keys]
+		@param model_class:
+		@type model_class:
+		'''
+#		for ghash in self.ghash_keys:
+#			assert model_class == classes.Ground, (model_class,classes.Ground)
+#			stuff = model_class.query(ancestor=ghash).fetch(None)
+#			assert False, stuff
+		# a list of lists of keys
+		keys_lists = [model_class.query(ancestor=ghash).fetch(None,keys_only=True) for ghash in self.ghash_keys]
+		# a list of lists of Future entities
+		future_entities = [ndb.get_multi_async(keys) for keys in keys_lists]
+		return future_entities
+	def harvest_futures(self,*list_of_list_of_future_lists):
+		result = []
+		for list_of_future_lists in list_of_list_of_future_lists:
+			r = []
+			for future_list in list_of_future_lists:
+				r.append([fut.get_result() for fut in future_list])
+			result.append(r)
+		return result
 	#===========================================================================
 	# Packaging
 	#===========================================================================

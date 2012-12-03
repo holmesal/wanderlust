@@ -40,7 +40,8 @@ handlers:
 - url: /sitemap.xml
   static_files: sitemap.xml
   upload: sitemap.xml
-
+- url: /stats.*
+  script: google.appengine.ext.appstats.ui.app
 
 libraries:
 - name: jinja2
