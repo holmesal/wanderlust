@@ -31,7 +31,7 @@ class GHash(ndb.Model):
 		return bbox_list
 	
 	@property
-	def refresh:
+	def refresh(self):
 		'''
 		remove everything inside this geohash, and re-populate
 		'''
@@ -65,14 +65,17 @@ class Point(polymodel.PolyModel):
 #			)
 
 class Road(Shape):
-	road_type = ndb.StringProperty(required=True)
-	road_name = ndb.StringProperty()
+	subtype = ndb.StringProperty(required=True)
+	subname = ndb.StringProperty()
+class Leisure(Shape):
+	subtype = ndb.StringProperty(required=True)
+	subname = ndb.StringProperty()
 class Building(Shape):
-	building_type = ndb.StringProperty(required=True)
-	building_name = ndb.StringProperty()
+	subtype = ndb.StringProperty(required=True)
+	subname = ndb.StringProperty()
 class Nature(Shape):
-	nature_type = ndb.StringProperty(required=True)
-	nature_name = ndb.StringProperty()
+	subtype = ndb.StringProperty(required=True)
+	subname = ndb.StringProperty()
 
 
 

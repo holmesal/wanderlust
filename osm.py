@@ -44,8 +44,8 @@ class Osm(object):
 				nodes.update({child.attrib["id"]:node})
 			elif child.tag=='way':
 				way_nodes = []
-				road_type = ""
-				road_name = ""
+				subtype = ""
+				subname = ""
 				for way_child in child:
 # 					logging.info(child.tag)
 					if way_child.tag == 'nd':
@@ -54,18 +54,18 @@ class Osm(object):
 # 						logging.info(nodes[child.attrib['ref']])
 					
 					elif way_child.attrib['k']=='highway':
-						road_type = way_child.attrib['v']
-						logging.info(road_type)
+						subtype = way_child.attrib['v']
+						logging.info(subtype)
 					elif way_child.attrib['k']=='name':
-						road_name = way_child.attrib['v']
-						logging.info(road_name)
+						subname = way_child.attrib['v']
+						logging.info(subname)
 
 				#grab the required nodes and create the entity
 				for idx,way_node in enumerate(way_nodes):
 					way_node.idx = idx
 					
 				#create the road
-				road = classes.Road(nodes=way_nodes,road_type=road_type,road_name=road_name,parent=self.ghash_entity.key,id=child.attrib["id"])
+				road = classes.Road(nodes=way_nodes,subtype=subtype,subname=subname,parent=self.ghash_entity.key,id=child.attrib["id"])
 				
 				#push the road onto the array
 				roads.append(road)
@@ -74,7 +74,7 @@ class Osm(object):
 		ndb.put_multi(roads)
 		
 	def get_nature(self):
-		url = self.base_url + '[leisure=*]'
+		url = self.base_url + '[natural=*]'
 		logging.info(url)
 		root = self.get_data(url)
 		#empty node dict
@@ -89,21 +89,28 @@ class Osm(object):
 				nodes.update({child.attrib["id"]:node})
 			elif child.tag=='way':
 				way_nodes = []
-				nature_name = ""
-				nature_type = ""
+				subname = ""
+				subtype = ""
 				for way_child in child:
 # 					logging.info(child.tag)
 					if way_child.tag == 'nd':
 						#save node rederence in order
 						way_nodes.append(copy.copy(nodes[way_child.attrib['ref']]))
 # 						logging.info(nodes[child.attrib['ref']])
-						
+					
+					#this covers coastline, wetland, beach, etc etc
+					elif way_child.attrib['k']=='natural':
+						subtype = way_child.attrib['v']
+						logging.info(subtype)
+					
+					#this covers parks (in-city)
 					elif way_child.attrib['k']=='leisure':
-						nature_type = way_child.attrib['v']
-						logging.info(nature_type)
+						subtype = way_child.attrib['v']
+						logging.info(subtype)
+					
 					elif way_child.attrib['k']=='name':
-						nature_name = way_child.attrib['v']
-						logging.info(nature_name)
+						subname = way_child.attrib['v']
+						logging.info(subname)
 					
 				
 				#grab the required nodes and create the entity
@@ -111,7 +118,7 @@ class Osm(object):
 					way_node.idx = idx
 					
 				#create the nature
-				nature = classes.Nature(nodes=way_nodes,nature_type=nature_type,nature_name=nature_name,parent=self.ghash_entity.key,id=child.attrib["id"])
+				nature = classes.Nature(nodes=way_nodes,subtype=subtype,subname=subname,parent=self.ghash_entity.key,id=child.attrib["id"])
 				
 				#push the nature onto the array
 				natures.append(nature)
@@ -140,8 +147,8 @@ class Osm(object):
 				nodes.update({child.attrib["id"]:node})
 			elif child.tag=='way':
 				way_nodes = []
-				building_name = ""
-				building_type = ""
+				subname = ""
+				subtype = ""
 				for way_child in child:
 # 					logging.info(child.tag)
 					if way_child.tag == 'nd':
@@ -150,11 +157,11 @@ class Osm(object):
 # 						logging.info(nodes[child.attrib['ref']])
 						
 					elif way_child.attrib['k']=='amenity':
-						building_type = way_child.attrib['v']
-						logging.info(building_type)
+						subtype = way_child.attrib['v']
+						logging.info(subtype)
 					elif way_child.attrib['k']=='name':
-						building_name = way_child.attrib['v']
-						logging.info(building_name)
+						subname = way_child.attrib['v']
+						logging.info(subname)
 					
 				
 				#grab the required nodes and create the entity
@@ -162,7 +169,7 @@ class Osm(object):
 					way_node.idx = idx
 					
 				#create the building
-				building = classes.Building(nodes=way_nodes,building_type=building_type,building_name=building_name,parent=self.ghash_entity.key,id=child.attrib["id"])
+				building = classes.Building(nodes=way_nodes,subtype=subtype,subname=subname,parent=self.ghash_entity.key,id=child.attrib["id"])
 				
 				#push the building onto the array
 				buildings.append(building)
@@ -171,3 +178,54 @@ class Osm(object):
 		
 		#store the array in the db
 		ndb.put_multi(buildings)
+		
+		
+		
+	def get_leisure(self):
+		url = self.base_url + '[leisure=*]'
+		logging.info(url)
+		root = self.get_data(url)
+		#empty node dict
+		nodes = {}
+		leisures = []
+		
+		
+		for child in root:
+			if child.tag=='node':
+				#nodes should be at the top
+				geo = ndb.GeoPt(child.attrib['lat'],child.attrib['lon'])
+				node = classes.Node(geo_point=geo)
+				nodes.update({child.attrib["id"]:node})
+			elif child.tag=='way':
+				way_nodes = []
+				subname = ""
+				subtype = ""
+				for way_child in child:
+# 					logging.info(child.tag)
+					if way_child.tag == 'nd':
+						#save node rederence in order
+						way_nodes.append(copy.copy(nodes[way_child.attrib['ref']]))
+# 						logging.info(nodes[child.attrib['ref']])
+						
+					elif way_child.attrib['k']=='leisure':
+						subtype = way_child.attrib['v']
+						logging.info(subtype)
+					elif way_child.attrib['k']=='name':
+						subname = way_child.attrib['v']
+						logging.info(subname)
+					
+				
+				#grab the required nodes and create the entity
+				for idx,way_node in enumerate(way_nodes):
+					way_node.idx = idx
+					
+				#create the building
+				leisure = classes.Leisure(nodes=way_nodes,subtype=subtype,subname=subname,parent=self.ghash_entity.key,id=child.attrib["id"])
+				
+				#push the building onto the array
+				leisures.append(leisure)
+				
+# 		logging.info(buildings)
+		
+		#store the array in the db
+		ndb.put_multi(leisures)
