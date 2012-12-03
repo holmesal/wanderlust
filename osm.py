@@ -32,7 +32,7 @@ class Osm(object):
 		if layer == "roads":
 			self.url = base_url + '[highway=*]'
 		elif layer == "nature":
-			self.url = base_url + '[landcover=grass]'
+			self.url = base_url + '[leisure=park]'
 		elif layer == "buildings":
 			self.url = base_url
 		
@@ -70,17 +70,17 @@ class Osm(object):
 				way_nodes = []
 				road_type = ""
 				road_name = ""
-				for child in child:
+				for way_child in child:
 # 					logging.info(child.tag)
-					if child.tag == 'nd':
+					if way_child.tag == 'nd':
 						#save node rederence in order
-						way_nodes.append(nodes[child.attrib['ref']])
+						way_nodes.append(nodes[way_child.attrib['ref']])
 # 						logging.info(nodes[child.attrib['ref']])
 					
-					elif child.attrib['k']=='highway':
-						road_type = child.attrib['v']
-					elif child.attrib['k']=='name':
-						road_name = child.attrib['v']
+					elif way_child.attrib['k']=='highway':
+						road_type = way_child.attrib['v']
+					elif way_child.attrib['k']=='name':
+						road_name = way_child.attrib['v']
 # 					else:
 # 						logging.info(child.attrib)
 				
@@ -90,15 +90,13 @@ class Osm(object):
 # 					logging.info(idx)
 					
 				#create the road
-# 				road = classes.Road(nodes=way_nodes,road_type=road_type,road_name=road_name,parent=self.ghashentity)
-				road = classes.Road(nodes=way_nodes,road_type=road_type,road_name=road_name,parent=self.ghash_entity.key)
+				road = classes.Road(nodes=way_nodes,road_type=road_type,road_name=road_name,parent=self.ghash_entity.key,id=child.attrib["id"])
 				
 				#push the road onto the array
 				roads.append(road)
 			
 		#store the array in the db
 		ndb.put_multi(roads)
-		logging.info(roads)
 		
 	def get_nature(self):
 		pass
@@ -115,7 +113,7 @@ class OsmHandler(webapp2.RequestHandler):
 		ghash = geohash.encode(geo_point[0], geo_point[1], classes.GHash._precision)
 		
 		geo_hash_entity = classes.GHash.get_or_insert(ghash)
-		osm = Osm(geo_hash_entity,"nature")
+		osm = Osm(geo_hash_entity,"roads")
 		osm.getdata()
 
 app = webapp2.WSGIApplication([('/osm',OsmHandler)])
