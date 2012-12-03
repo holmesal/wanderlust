@@ -29,6 +29,13 @@ class GHash(ndb.Model):
 					bbox['n']
 					]
 		return bbox_list
+	
+	@property
+	def refresh:
+		'''
+		remove everything inside this geohash, and re-populate
+		'''
+		pass
 		
 class Node(ndb.Model):
 	# position of this node in the way
