@@ -10,8 +10,8 @@ default_expiration: "1m"
 handlers:
 - url: /
   script: landing.app
-- url: /osm
-  script: osm.app
+- url: /getdata
+  script: getdata.app
 - url: /test
   script: test.app
 

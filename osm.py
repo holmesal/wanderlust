@@ -1,8 +1,5 @@
-import webapp2
 import logging
 import copy
-
-
 
 from google.appengine.api import urlfetch
 from google.appengine.ext import ndb
@@ -20,20 +17,9 @@ class Osm(object):
 
 		bbox = self.ghash_entity.bbox
 
-#		assert layer in ["roads","nature","buildings"], "Must pass a valid layer string: roads, nature, or buildings"
-		
-#		bbox = geohash.bbox(ghash_entity.name)
-##		assert False, bbox
-#		bbox = [-71.0442,42.3622,-71.027,42.3697]
 		assert type(bbox) == list, 'Must pass in bounding box as a 4-element list - lon,lat,lon,lat'
 		
 		self.base_url = 'http://www.overpass-api.de/api/xapi?*[bbox='+str(bbox[0])+','+str(bbox[1])+','+str(bbox[2])+','+str(bbox[3])+']'
-		
-		
-		#build the request url
-# 		self.url = 'http://www.overpass-api.de/api/xapi?*[bbox='+str(bbox[0])+','+str(bbox[1])+','+str(bbox[2])+','+str(bbox[3])+']'+filt_string
-		
-		logging.info(self.base_url)
 		
 	def get_data(self,url):
 		
@@ -44,6 +30,7 @@ class Osm(object):
 		
 	def get_roads(self):
 		url = self.base_url + '[highway=*]'
+		logging.info(url)
 		root = self.get_data(url)
 		#empty node dict
 		nodes = {}
@@ -68,8 +55,10 @@ class Osm(object):
 					
 					elif way_child.attrib['k']=='highway':
 						road_type = way_child.attrib['v']
+						logging.info(road_name)
 					elif way_child.attrib['k']=='name':
 						road_name = way_child.attrib['v']
+						logging.info(road_type)
 
 				#grab the required nodes and create the entity
 				for idx,way_node in enumerate(way_nodes):
@@ -85,12 +74,14 @@ class Osm(object):
 		ndb.put_multi(roads)
 		
 	def get_nature(self):
-		
+		url = self.base_url + '[leisure=*]'
+		logging.info(url)
+		root = self.get_data(url)
 		#empty node dict
 		nodes = {}
 		natures = []
 		
-		for child in self.root:
+		for child in root:
 			if child.tag=='node':
 				#nodes should be at the top
 				geo = ndb.GeoPt(child.attrib['lat'],child.attrib['lon'])
@@ -99,6 +90,7 @@ class Osm(object):
 			elif child.tag=='way':
 				way_nodes = []
 				nature_name = ""
+				nature_type = ""
 				for way_child in child:
 # 					logging.info(child.tag)
 					if way_child.tag == 'nd':
@@ -107,10 +99,11 @@ class Osm(object):
 # 						logging.info(nodes[child.attrib['ref']])
 						
 					elif way_child.attrib['k']=='leisure':
-# 						road_type = way_child.attrib['v']
-						logging.info(way_child.attrib['v'])
+						nature_type = way_child.attrib['v']
+						logging.info(nature_type)
 					elif way_child.attrib['k']=='name':
-						park_name = way_child.attrib['v']
+						nature_name = way_child.attrib['v']
+						logging.info(nature_name)
 					
 				
 				#grab the required nodes and create the entity
@@ -127,19 +120,3 @@ class Osm(object):
 		
 	def get_buildings(self):
 		pass
-		
-	
-	
-
-				
-
-class OsmHandler(webapp2.RequestHandler):
-	def get(self):
-		geo_point = 42.3697785,-71.0391343 # maverick square
-		ghash = geohash.encode(geo_point[0], geo_point[1], classes.GHash._precision)
-		
-		geo_hash_entity = classes.GHash.get_or_insert(ghash)
-		osm = Osm(geo_hash_entity,"nature")
-		osm.getdata()
-
-app = webapp2.WSGIApplication([('/osm',OsmHandler)])
