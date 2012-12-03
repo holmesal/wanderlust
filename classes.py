@@ -66,6 +66,8 @@ class Building(Shape):
 class Nature(Shape):
 	nature_type = ndb.StringProperty(required=True)
 	nature_name = ndb.StringProperty()
-
+class Water(Shape):
+	water_type = ndb.StringProperty(required=True)
+	water_name = ndb.StringProperty()
 
 
