@@ -32,30 +32,23 @@ class GHash(ndb.Model):
 		
 class Node(ndb.Model):
 	# position of this node in the way
-	idx = ndb.IntegerProperty()
+	idx = ndb.IntegerProperty(indexed = False)
 	# the node's position
 	geo_point = ndb.GeoPtProperty(required=True, indexed=False)
-#	# the node's geohash
-#	geo_hash = ndb.ComputedProperty(
-#			lambda self: geohash.encode(
-#				latitude = self.geo_point.lat,
-#				longitude = self.geo_point.lon,
-#				precision = 8
-#				)
-#			)
+	def package(self):
+		return self.to_dict()
 
 class Shape(polymodel.PolyModel):
 	# has a shape definition from open maps
-	nodes = ndb.StructuredProperty(Node,repeated=True)
+	nodes = ndb.LocalStructuredProperty(Node,repeated=True)
+	
+	def package(self):
+		return self.to_dict()
+	
 class Point(polymodel.PolyModel):
 	geo_point = ndb.GeoPtProperty(required=True, indexed = False)
-#	geo_hash = ndb.ComputedProperty(
-#			lambda self: geohash.encode(
-#				latitude = self.geo_point.lat,
-#				longitude = self.geo_point.lon,
-#				precision = 8
-#				)
-#			)
+	def package(self):
+		return self.to_dict()
 
 class Road(Shape):
 	road_type = ndb.StringProperty(required=True)

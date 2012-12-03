@@ -1,8 +1,13 @@
 import classes
 import webapp2
 from google.appengine.ext import ndb
+import logging
+import sys
+import traceback
 
 class BaseHandler(webapp2.RequestHandler):
+	def set_plaintext(self):
+		self.response.headers['Content-Type'] = 'text/plain'
 	def say(self,stuff):
 		self.response.out.write(stuff)
 
@@ -52,3 +57,84 @@ class FetchData(object):
 		'''
 		
 		
+
+def log_error(message=''):
+	#called by: log_error(*self.request.body)
+	exc_type,exc_value,exc_trace = sys.exc_info()
+#	logging.error(exc_type)
+#	logging.error(exc_value)
+	logging.error(traceback.format_exc(exc_trace))
+	if message:
+		logging.error(message)
+def log_entity(model,props=None,delimeter="\n\t\t"):
+	#returns a long multiline string of the model in key: prop
+	log_str = delimeter
+	try:
+		if type(props) is list:
+			#only display certain keys
+			for key in props:
+				log_str += str(key)+": "+str(getattr(model,key))+delimeter
+		else:
+			#display all keys
+			key_list = []
+			for key in model.properties():
+				key_list.append(key)
+			key_list.sort()
+			for key in key_list:
+				log_str += str(key)+": "+str(getattr(model,key))+delimeter
+	except Exception,e:
+		logging.info('There was an error in log_model_props %s',e)
+	finally:
+		return log_str
+def log_dir(obj,props=None):
+	#returns a long multiline string of a regular python object in key: prop
+	delimeter = "\n\t\t"
+	log_str = delimeter
+	try:
+		if type(props) is list:
+#			logging.debug('log some keys')
+			#only display certain keys
+			key_list = []
+			for key in props:
+				key_list.append(key)
+			key_list.sort()
+			for key in key_list:
+				log_str += str(key)+": "+str(getattr(obj,key))+delimeter
+		else:
+#			logging.debug('log all keys')
+			#display all keys
+			for key in dir(obj):
+				log_str += str(key)+": "+str(getattr(obj,key))+delimeter
+	except:
+		logging.info('There was an error in log_dir')
+	finally:
+		return log_str
+def log_dict(obj,props=None,delimeter= "\n\t\t"):
+	#returns a long multiline string of a regular python object in key: prop
+#	delimeter = "\n\t\t"
+	log_str = delimeter
+
+	try:
+		if type(props) is list:
+			#only display certain keys
+			for key in props:
+				if type(obj[key]) == dict:
+					log_str += str(key)+": "+ log_dict(obj[key],None,delimeter+'\t\t')+delimeter
+				else:
+					log_str += str(key)+": "+str(obj[key])+delimeter
+		else:
+			#display all keys
+			key_list = []
+			for key in obj:
+				key_list.append(key)
+			key_list.sort()
+			for key in key_list:
+				if type(obj[key]) == dict:
+					log_str += str(key)+": "+ log_dict(obj[key],None,delimeter+'\t\t')+delimeter
+
+				else:
+					log_str += str(key)+": "+str(obj[key])+delimeter
+	except Exception,e:
+		logging.info('There was an error in log_dict %s',e)
+	finally:
+		return log_str
