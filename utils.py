@@ -38,8 +38,12 @@ class BaseHandler(webapp2.RequestHandler):
 		self.response.out.write(json.dumps(reply))
 
 class GHashData(object):
+	'''
+	A class for grabbing environmental data from a GHash
+	'''
 	def __init__(self,*ghash_strings):
 		'''
+		Class wraps around a list of ghashes.
 		'''
 		
 		self.ghash_strings = ghash_strings
@@ -63,49 +67,72 @@ class GHashData(object):
 			ghash_key_list.append(ndb.Key(classes.GHash,ghash))
 		
 		return ghash_key_list
+	#===========================================================================
+	# Fetching data from a GHash
+	#===========================================================================
 	def fetch_ground(self):
 		'''
+		Fetches everything on the ground layer. Convenience wrapper
 		@return: everything on the ground layer for each ghash - list of lists
 		@rtype: list
 		'''
-		ground_lists = []
-		for ghash in self.ghash_keys:
-			ground_lists.append(classes.Ground.query(ancestor=ghash).fetch(None))
-		return ground_lists
-	def fetch_buildings(self):
+		return self.fetch(classes.Ground)
+	def fetch_structures(self):
 		'''
-		Fetches everything on the buildings layer
-		@return: everything on the buildings layer for each ghash - list of lists
+		Fetches everything on the structure layer. Convenience wrapper
+		@return: everything on the structure layer for each ghash - list of lists
 		@rtype: list
 		'''
-		building_lists = []
-		for ghash in self.ghash_keys:
-			building_lists.append(classes.Building.query(ancestor=ghash).fetch(None))
-		return building_lists
-	def package_ground(self,ground):
-#		packaged = []
-#		for g in ground:
-#			logging.info(type(g))
-#			p = g.package()
-#			assert False, p
-#			packaged.append(p)
-#		return packaged
-		return [g.package() for g in ground]
-	def package_building(self,buildings):
-		return [b.package() for b in buildings]
-	def package_ghash(self,ghash,packaged_ground=[],packaged_buildings=[]):
-		packaged_ghash = {
-			'ghash' : ghash,
-			'ground' : packaged_ground,
-			'buildings' : packaged_buildings
-			}
-		return packaged_ghash
-	def package_ghashes(self,ground=[],buildings=[]):
-		package = {}
+		return self.fetch(classes.Structure)
+	def fetch(self,model_class):
+		'''
+		General function for fetching everything of a certain kind from ghashes
+		@param model_class: The model kind of which you desire, e.g. classes.Structure
+		@type model_class: ndb.polymodel.Polymodel
+		
+		@return: a list of lists of stuff in each ghash. sub lists correspond to the parent ghash
+		@rtype: list
+		'''
+		
+		return [model_class.query(ancestor=ghash).fetch(None) for ghash in self.ghash_keys]
+	#===========================================================================
+	# Packaging
+	#===========================================================================
+	def package_entities(self,entities):
+		'''
+		Packages a list of entities by calling each ones package function
+		@param entities: a list of entities
+		@type entities: list
+		
+		@return: a packaged list of entities
+		@rtype: list
+		'''
+		return [e.package() for e in entities]
+	def package_ghashes(self,ground=[],structures=[]):
+		'''
+		Packages all of the information for the ghashes
+		
+		@param ground: list of ground entities with same indexes as ghashes
+		@type ground: list
+		@param structures: list of structure entities with same indexes as ghashes
+		@type structures: list
+		
+		@return: a nested dictionary with all of the ghash info
+		@rtype: dict
+		'''
+		package = {
+				'ghashes' : {}
+				}
 		for idx,ghash in enumerate(self.ghash_strings):
-			packaged_ground = self.package_ground(ground[idx])
-			packaged_buildings = self.package_building(buildings[idx])
-			package.update(self.package_ghash(ghash, packaged_ground, packaged_buildings))
+			packaged_ground = self.package_entities(ground[idx])
+			packaged_structures = self.package_entities(structures[idx])
+			package['ghashes'].update({
+						ghash : {
+								'ground' : packaged_ground,
+								'structures' : packaged_structures
+								}
+						
+						})
 		return package
 		
 
