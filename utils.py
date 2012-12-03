@@ -37,24 +37,24 @@ class FetchData(object):
 		
 		return ghash_key_list
 	
-	def _fetch_roads(self,ghash_keys):
-		for ghash in ghash_keys:
+	def _fetch_roads(self):
+		for ghash in self.ghash_keys:
 			roads = classes.Road.query(ancestor=ghash).fetch(None)
 		return roads
-	def _fetch_buildings(self,ghash_keys):
-		for ghash in ghash_keys:
+	def _fetch_buildings(self):
+		for ghash in self.ghash_keys:
 			buildings = classes.Building.query(ancestor=ghash).fetch(None)
 		return buildings
-	def _fetch_nature(self,ghash_keys):
-		for ghash in ghash_keys:
+	def _fetch_nature(self):
+		for ghash in self.ghash_keys:
 			nature = classes.Nature.query(ancestor=ghash).fetch(None)
 		return nature
-	def fetch_ground(self,ghash_keys):
+	def fetch_ground(self):
 		'''
 		Fetches everything on the ground layer
-		@param ghash_keys:
-		@type ghash_keys:
 		'''
+		
+	def fetch_buildings(self,ghash_keys):
 		
 		
 
@@ -66,26 +66,7 @@ def log_error(message=''):
 	logging.error(traceback.format_exc(exc_trace))
 	if message:
 		logging.error(message)
-def log_entity(model,props=None,delimeter="\n\t\t"):
-	#returns a long multiline string of the model in key: prop
-	log_str = delimeter
-	try:
-		if type(props) is list:
-			#only display certain keys
-			for key in props:
-				log_str += str(key)+": "+str(getattr(model,key))+delimeter
-		else:
-			#display all keys
-			key_list = []
-			for key in model.properties():
-				key_list.append(key)
-			key_list.sort()
-			for key in key_list:
-				log_str += str(key)+": "+str(getattr(model,key))+delimeter
-	except Exception,e:
-		logging.info('There was an error in log_model_props %s',e)
-	finally:
-		return log_str
+
 def log_dir(obj,props=None):
 	#returns a long multiline string of a regular python object in key: prop
 	delimeter = "\n\t\t"
