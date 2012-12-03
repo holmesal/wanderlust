@@ -12,6 +12,8 @@ handlers:
   script: landing.app
 - url: /osm
   script: osm.app
+- url: /test
+  script: test.app
 
 
 #tasks and cronjobs
