@@ -65,6 +65,7 @@ class Road(Ground):
 	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
+	
 class Leisure(Ground):
 	'''
 	Urban wildlife
@@ -78,10 +79,28 @@ class Nature(Ground):
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
 
-	class Building(Shape):
-		'''
-		
-		'''
-		subtype = ndb.StringProperty(required=True)
-		subname = ndb.StringProperty()
+class BuildingFootprint(Shape):
+	'''
+	
+	'''
+	subtype = ndb.StringProperty(required=True)
+	subname = ndb.StringProperty()
 
+
+
+
+class Structure(polymodel.PolyModel):
+	'''
+	Anything real-world entity that exists above the ground layer
+	'''
+	
+	geo_point = ndb.GeoPtProperty(required=True, indexed=False)		#refers to the center of the structure
+	
+	
+class Building(Structure):
+	'''
+	A traditional building. You know, suburbia.
+	'''
+	subtype = ndb.StringProperty(required=True)	#hospital,school,etc
+	subname = ndb.StringProperty()
+	

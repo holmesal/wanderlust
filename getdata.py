@@ -28,7 +28,7 @@ class GplacesHandler(webapp2.RequestHandler):
 		geo_hash_entity = classes.GHash.get_or_insert(ghash)
 		
 		tile = gplaces.Gplaces(geo_hash_entity)
-		tile.get_data()
+		tile.get_buildings()
 
 
 app = webapp2.WSGIApplication([('/getdata/osm',OsmHandler),
