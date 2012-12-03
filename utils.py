@@ -16,11 +16,11 @@ class BaseHandler(webapp2.RequestHandler):
 		self.response.out.write('\n')
 		self.response.out.write(stuff)
 		
-	def send_fail(self,auto_log=False):
+	def send_fail(self,auto_log=True):
 		if auto_log == True:
 			log_error()
 		status_code = 500
-		status_message = 'Server Error'
+		status_message = 'Internal Server Error'
 		response = {}
 		self.send_response(status_code, status_message, response)
 	def send_success(self,response):
@@ -37,15 +37,13 @@ class BaseHandler(webapp2.RequestHandler):
 				}
 		self.response.out.write(json.dumps(reply))
 
-class FetchData(object):
-	def __init__(self,ghash_strings,ghash_keys=None):
+class GHashData(object):
+	def __init__(self,*ghash_strings):
 		'''
 		'''
+		
 		self.ghash_strings = ghash_strings
-		if ghash_keys is not None:
-			self.ghash_keys = ghash_keys
-		else:
-			self.ghash_keys = self.create_ghash_keys(ghash_strings)
+		self.ghash_keys = self.create_ghash_keys(ghash_strings)
 	
 	@staticmethod
 	def create_ghash_keys(ghash_strings):
@@ -82,12 +80,17 @@ class FetchData(object):
 		'''
 		building_lists = []
 		for ghash in self.ghash_keys:
-			building_lists.append(classes.Nature.query(ancestor=ghash).fetch(None))
+			building_lists.append(classes.Building.query(ancestor=ghash).fetch(None))
 		return building_lists
 	def package_ground(self,ground):
 		return [g.package() for g in ground]
 	def package_building(self,buildings):
-		return [b.package for b in buildings]
+#		p = []
+#		for b in buildings:
+#			logging.info(type(b))
+#			p.append(b.package())
+#		return p
+		return [b.package() for b in buildings]
 	def package_ghash(self,ghash,packaged_ground=[],packaged_buildings=[]):
 		packaged_ghash = {
 			'ghash' : ghash,
@@ -106,7 +109,7 @@ class FetchData(object):
 
 def log_error(message=''):
 	#called by: log_error(*self.request.body)
-	exc_type,exc_value,exc_trace = sys.exc_info()
+	exc_type,exc_value,exc_trace = sys.exc_info() #@UnusedVariable
 #	logging.error(exc_type)
 #	logging.error(exc_value)
 	logging.error(traceback.format_exc(exc_trace))
@@ -136,13 +139,13 @@ def log_dir(obj,props=None):
 		logging.info('There was an error in log_dir')
 	finally:
 		return log_str
-def log_dict(obj,props=None,delimeter= "\n\t\t"):
+def log_dict(obj,delimeter= "\n\t\t",*props):
 	#returns a long multiline string of a regular python object in key: prop
 #	delimeter = "\n\t\t"
 	log_str = delimeter
 
 	try:
-		if type(props) is list:
+		if props:
 			#only display certain keys
 			for key in props:
 				if type(obj[key]) == dict:

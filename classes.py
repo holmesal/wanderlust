@@ -30,7 +30,6 @@ class GHash(ndb.Model):
 					]
 		return bbox_list
 	
-	@property
 	def refresh(self):
 		'''
 		remove everything inside this geohash, and re-populate
@@ -43,46 +42,74 @@ class Node(ndb.Model):
 	# the node's position
 	geo_point = ndb.GeoPtProperty(required=True, indexed=False)
 	def package(self):
-		return self.to_dict()
+		return {
+			'idx' : self.idx,
+			'geo_point' : str(self.geo_point)
+			}
 
-class Point(polymodel.PolyModel):
-	geo_point = ndb.GeoPtProperty(required=True, indexed = False)
-	def package(self):
-		return self.to_dict()
 
 class Shape(polymodel.PolyModel):
 	# has a shape definition from open maps
 	nodes = ndb.LocalStructuredProperty(Node,repeated=True)
-	
+	def package(self,packaged={}):
+		packaged.update({
+						'nodes' : [node.package() for node in self.nodes]
+						})
+		return packaged
 
 class Ground(Shape):
-	def package(self):
-		self.to_dict()
+	def package(self,packaged={}):
+		return packaged
+		
 class Road(Ground):
 	'''
 	
 	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
+	def package(self,packaged={}):
+		packaged.update({
+						'subtype' : self.subtype,
+						'subname' : self.subname
+						})
+		
 class Leisure(Ground):
 	'''
 	Urban wildlife
 	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
+	def package(self,packaged={}):
+		packaged.update({
+						'subtype' : self.subtype,
+						'subname' : self.subname
+						})
+		
+		
 class Nature(Ground):
 	'''
-	Wildlife stuff
+	Wildlife wildlife
 	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
-
+	def package(self,packaged={}):
+		packaged.update({
+				'subtype' : self.subtype,
+				'subname' : self.subname
+				})
+		return super(Nature,self).package(packaged)
 class Building(Shape):
 	'''
-	
+	A structure. Made of dreams and ice cream.
 	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
 	def package(self):
-		return self.to_dict()
+		packaged = {
+				'subtype' : self.subtype,
+				'subname' : self.subname
+				}
+		return super(Building,self).package(packaged)
+		
+		
 

@@ -19,5 +19,6 @@ class GetDataHandler(webapp2.RequestHandler):
 		tile.get_roads()
 		tile.get_buildings()
 		tile.get_leisure()
+		self.response.out.write('Done!')
 
 app = webapp2.WSGIApplication([('/getdata',GetDataHandler)])

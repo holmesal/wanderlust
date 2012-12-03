@@ -136,7 +136,10 @@ class Osm(object):
 		buildings = []
 		
 		'''
-		Most buildings are handled as nodes, not ways. This is the geometry layer. So this function will return the building shape if it exists. We will handle the points-of-interest as NODES elsewhere. This is just for geographic shapes to aid in drawing
+		Most buildings are handled as nodes, not ways. This is the geometry layer. 
+		So this function will return the building shape if it exists. 
+		We will handle the points-of-interest as NODES elsewhere. 
+		This is just for geographic shapes to aid in drawing
 		'''
 		
 		for child in root:
