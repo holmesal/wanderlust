@@ -29,12 +29,24 @@ class GHash(ndb.Model):
 					bbox['n']
 					]
 		return bbox_list
+	
+	@property
+	def refresh(self):
+		'''
+		remove everything inside this geohash, and re-populate
+		'''
+		pass
 		
 class Node(ndb.Model):
 	# position of this node in the way
-	idx = ndb.IntegerProperty(indexed = False)
+	idx = ndb.IntegerProperty(indexed = False, default = 0)
 	# the node's position
 	geo_point = ndb.GeoPtProperty(required=True, indexed=False)
+	def package(self):
+		return self.to_dict()
+
+class Point(polymodel.PolyModel):
+	geo_point = ndb.GeoPtProperty(required=True, indexed = False)
 	def package(self):
 		return self.to_dict()
 
@@ -45,22 +57,18 @@ class Shape(polymodel.PolyModel):
 	def package(self):
 		return self.to_dict()
 	
-class Point(polymodel.PolyModel):
-	geo_point = ndb.GeoPtProperty(required=True, indexed = False)
-	def package(self):
-		return self.to_dict()
 
 class Road(Shape):
-	road_type = ndb.StringProperty(required=True)
-	road_name = ndb.StringProperty()
+	subtype = ndb.StringProperty(required=True)
+	subname = ndb.StringProperty()
+class Leisure(Shape):
+	subtype = ndb.StringProperty(required=True)
+	subname = ndb.StringProperty()
 class Building(Shape):
-	building_type = ndb.StringProperty(required=True)
-	building_name = ndb.StringProperty()
+	subtype = ndb.StringProperty(required=True)
+	subname = ndb.StringProperty()
 class Nature(Shape):
-	nature_type = ndb.StringProperty(required=True)
-	nature_name = ndb.StringProperty()
-class Water(Shape):
-	water_type = ndb.StringProperty(required=True)
-	water_name = ndb.StringProperty()
+	subtype = ndb.StringProperty(required=True)
+	subname = ndb.StringProperty()
 
 
