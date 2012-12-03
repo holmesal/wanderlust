@@ -99,17 +99,34 @@ class Nature(Ground):
 				'subname' : self.subname
 				})
 		return super(Nature,self).package(packaged)
-class Building(Shape):
+
+class BuildingFootprint(Shape):
 	'''
-	A structure. Made of dreams and ice cream.
+	
 	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
 	def package(self):
-		packaged = {
-				'subtype' : self.subtype,
-				'subname' : self.subname
-				}
-		return super(Building,self).package(packaged)
-		
-		
+			packaged = {
+					'subtype' : self.subtype,
+					'subname' : self.subname
+					}
+			return super(Building,self).package(packaged)
+
+
+
+class Structure(polymodel.PolyModel):
+	'''
+	Anything real-world entity that exists above the ground layer
+	'''
+	
+	geo_point = ndb.GeoPtProperty(required=True, indexed=False)		#refers to the center of the structure
+	
+	
+class Building(Structure):
+	'''
+	A traditional building. You know, suburbia.
+	'''
+	subtype = ndb.StringProperty(required=True)	#hospital,school,etc
+	subname = ndb.StringProperty()
+	

@@ -131,7 +131,7 @@ class Osm(object):
 		root = self.get_data(url)
 		#empty node dict
 		nodes = {}
-		buildings = []
+		building_footprints = []
 		
 		'''
 		Most buildings are handled as nodes, not ways. This is the geometry layer. 
@@ -170,15 +170,15 @@ class Osm(object):
 					way_node.idx = idx
 					
 				#create the building
-				building = classes.Building(nodes=way_nodes,subtype=subtype,subname=subname,parent=self.ghash_entity.key,id=child.attrib["id"])
+				building_footprint = classes.BuildingFootprint(nodes=way_nodes,subtype=subtype,subname=subname,parent=self.ghash_entity.key,id=child.attrib["id"])
 				
 				#push the building onto the array
-				buildings.append(building)
+				building_footprints.append(building_footprint)
 				
 # 		logging.info(buildings)
 		
 		#store the array in the db
-		ndb.put_multi(buildings)
+		ndb.put_multi(building_footprints)
 		
 		
 		

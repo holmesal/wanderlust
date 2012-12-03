@@ -28,12 +28,10 @@ class Gplaces(object):
 		
 	def parse_data(self,data):
 		
-		for result in data["results"]:
-			logging.info(result["name"])
-			logging.info(result["types"])
+		pass
 		
 		
-	def get_data(self):
+	def get_buildings(self):
 # 		supported_types = [
 # 			"bank",
 # 			"bar",
@@ -61,27 +59,48 @@ class Gplaces(object):
 # 		]
 
 		supported_types = [
-			"bus_station",
-			"subway_station",
-			"train_station"
+			"bank",
+			"hospital",
+			"library",
+			"church",
+			"police_station",
+			"fire_station",
+			"school",
+			"cafe",
+			"bar"
 		]
 		
-		typestring = "park"
+		typestring = ""
+		
 		for gtype in supported_types:
-			typestring += "|"+gtype
+			if typestring == "":
+				typestring += gtype
+			else:
+				typestring += "|"+gtype
 		
 		url = self.base_url + '&types='+typestring
-		
-		
-		
-		
 		logging.info(url)
 		
 		result = urlfetch.fetch(url)
-		
 		data = json.loads(result.content)
 		
-		self.parse_data(data)
+		# self.parse_data(data)
+		
+		buildings = []
+		
+		for result in data["results"]:
+			intersection = list(set(result["types"]).intersection(supported_types))
+			subtype = intersection[0]
+			geo_point = ndb.GeoPt(result["geometry"]["location"]["lat"],result["geometry"]["location"]["lng"])
+			subname = result["name"]
+			building = classes.Building(subtype=subtype,subname=subname,parent=self.ghash_entity.key,id=result["id"],geo_point=geo_point)
+			buildings.append(building)
+			logging.info(subtype)
+			logging.info(subname)
+		
+		#store everything
+		ndb.put_multi(buildings)
+			
 			
 		if "next_page_token" in data:
 			pagetoken = data["next_page_token"]
@@ -90,6 +109,6 @@ class Gplaces(object):
 			logging.info("going to sleep")
 			time.sleep(3)
 			logging.info("woke up!")
-			self.get_data()
+			self.get_buildings()
 		
 		
