@@ -38,9 +38,10 @@ class Osm(object):
 		logging.info(self.base_url)
 		
 	def get_data(self,url):
-		result = urlfetch.fetch(url)
 		
+		result = urlfetch.fetch(url)
 		root = ET.fromstring(result.content)
+		
 		return root
 		
 	def get_roads(self):
