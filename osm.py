@@ -14,14 +14,13 @@ from geo import geohash
 
 class Osm(object):
 	
-	def __init__(self,ghash_entity,layer):
+	def __init__(self,ghash_entity):
 		assert type(ghash_entity) == classes.GHash,type(ghash_entity)
 		self.ghash_entity = ghash_entity
 
 		bbox = self.ghash_entity.bbox
 
-		assert layer in ["roads","nature","buildings"], "Must pass a valid layer string: roads, nature, or buildings"
-		self.layer = layer
+#		assert layer in ["roads","nature","buildings"], "Must pass a valid layer string: roads, nature, or buildings"
 		
 #		bbox = geohash.bbox(ghash_entity.name)
 ##		assert False, bbox
