@@ -1,18 +1,36 @@
 # class for fetching information from the database
 import classes
+from google.appengine.ext import ndb
 class FetchData(object):
-	def __init__(self,ghash_list):
+	def __init__(self,ghash_keys):
 		'''
-		@param ghash_list: a list of ghash strings (6 precision) we want to grab info from
+		'''
+		# create a list of ghash_keys from the ghash
+		self.ghash_keys = ghash_keys
+	
+	@staticmethod
+	def create_ghash_keys(ghash_list):
+		'''
+		Converts a list of ghash strings into a list of ghash_keys
+		Also assures that ghashes are the correct length and are strings
+		@param ghash_list: list of string ghashes
 		@type ghash_list: list
-		'''
 		
-		# quality control!
+		@return: a list of ghash_keys that correspond to the provided keys
+		@rtype: list
+		'''
+		ghash_key_list = []
 		for ghash in ghash_list:
 			assert ghash.__len__() == classes.GHash._precision, ghash.__len__()
 			assert type(ghash) == str, type(ghash)
-		self.ghash_list = ghash_list
+			ghash_key_list.append(ndb.Key(classes.GHash,ghash))
+		
+		return ghash_key_list
 	
 	def fetch_roads(self):
-		for ghash in self.ghash_list:
-			
+		for ghash in self.ghash_keys:
+			roads = classes.Road.query(ancestor=ghash).fetch(None)
+		
+		# mesh the roads together
+		# assumess that the roads share a common point from ghash to ghash
+		
