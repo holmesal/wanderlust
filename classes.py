@@ -48,7 +48,11 @@ class Node(ndb.Model):
 			}
 
 
-class Shape(polymodel.PolyModel):
+class Ground(polymodel.PolyModel):
+	'''
+	Root class
+	Stuff thats on the ground layer. 
+	'''
 	# has a shape definition from open maps
 	nodes = ndb.LocalStructuredProperty(Node,repeated=True)
 	def package(self,packaged={}):
@@ -57,13 +61,9 @@ class Shape(polymodel.PolyModel):
 						})
 		return packaged
 
-class Ground(Shape):
-	def package(self,packaged={}):
-		return super(Ground,self).package(packaged)
-		
 class Road(Ground):
 	'''
-	
+	Never heard of a road. What is it?
 	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
@@ -100,33 +100,46 @@ class Nature(Ground):
 				})
 		return super(Nature,self).package(packaged)
 
-class BuildingFootprint(Shape):
+class BuildingFootprint(Ground):
 	'''
 	
 	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
 	def package(self):
-			packaged = {
-					'subtype' : self.subtype,
-					'subname' : self.subname
-					}
-			return super(Building,self).package(packaged)
+		packaged = {
+				'subtype' : self.subtype,
+				'subname' : self.subname
+				}
+		return super(BuildingFootprint,self).package(packaged)
 
 
 
 class Structure(polymodel.PolyModel):
 	'''
+	Root class
 	Anything real-world entity that exists above the ground layer
 	'''
 	
 	geo_point = ndb.GeoPtProperty(required=True, indexed=False)		#refers to the center of the structure
-	
+	def package(self,packaged={}):
+		packaged.update({
+						'geo_point' : self.geo_point
+						})
+		return packaged
+		
 	
 class Building(Structure):
 	'''
 	A traditional building. You know, suburbia.
+	
 	'''
 	subtype = ndb.StringProperty(required=True)	#hospital,school,etc
 	subname = ndb.StringProperty()
-	
+	def package(self):
+		packaged = {}
+		packaged.update({
+						'subtype' : self.subtype,
+						'subname' : self.subname
+						})
+		return super(Building,self).package(packaged)
