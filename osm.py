@@ -1,5 +1,6 @@
 import webapp2
 import logging
+import copy
 
 
 
@@ -74,7 +75,7 @@ class Osm(object):
 # 					logging.info(child.tag)
 					if way_child.tag == 'nd':
 						#save node rederence in order
-						way_nodes.append(nodes[way_child.attrib['ref']])
+						way_nodes.append(copy.copy(nodes[way_child.attrib['ref']]))
 # 						logging.info(nodes[child.attrib['ref']])
 					
 					elif way_child.attrib['k']=='highway':
@@ -87,7 +88,8 @@ class Osm(object):
 				#grab the required nodes and create the entity
 				for idx,way_node in enumerate(way_nodes):
 					way_node.idx = idx
-# 					logging.info(idx)
+				for node in way_nodes:
+					logging.info(node.idx)
 					
 				#create the road
 				road = classes.Road(nodes=way_nodes,road_type=road_type,road_name=road_name,parent=self.ghash_entity.key,id=child.attrib["id"])
