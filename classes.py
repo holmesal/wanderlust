@@ -54,11 +54,10 @@ class Shape(polymodel.PolyModel):
 	# has a shape definition from open maps
 	nodes = ndb.LocalStructuredProperty(Node,repeated=True)
 	
-	def package(self):
-		return self.to_dict()
 
 class Ground(Shape):
-	pass
+	def package(self):
+		self.to_dict()
 class Road(Ground):
 	'''
 	
@@ -84,4 +83,6 @@ class Building(Shape):
 	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
+	def package(self):
+		return self.to_dict()
 
