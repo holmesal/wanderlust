@@ -59,7 +59,7 @@ class Shape(polymodel.PolyModel):
 
 class Ground(Shape):
 	def package(self,packaged={}):
-		return packaged
+		return super(Ground,self).package(packaged)
 		
 class Road(Ground):
 	'''
@@ -72,6 +72,7 @@ class Road(Ground):
 						'subtype' : self.subtype,
 						'subname' : self.subname
 						})
+		return super(Road,self).package(packaged)
 		
 class Leisure(Ground):
 	'''
@@ -84,7 +85,7 @@ class Leisure(Ground):
 						'subtype' : self.subtype,
 						'subname' : self.subname
 						})
-		
+		return super(Leisure,self).package(packaged)
 		
 class Nature(Ground):
 	'''

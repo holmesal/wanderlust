@@ -83,13 +83,15 @@ class GHashData(object):
 			building_lists.append(classes.Building.query(ancestor=ghash).fetch(None))
 		return building_lists
 	def package_ground(self,ground):
+#		packaged = []
+#		for g in ground:
+#			logging.info(type(g))
+#			p = g.package()
+#			assert False, p
+#			packaged.append(p)
+#		return packaged
 		return [g.package() for g in ground]
 	def package_building(self,buildings):
-#		p = []
-#		for b in buildings:
-#			logging.info(type(b))
-#			p.append(b.package())
-#		return p
 		return [b.package() for b in buildings]
 	def package_ghash(self,ghash,packaged_ground=[],packaged_buildings=[]):
 		packaged_ghash = {
