@@ -110,13 +110,64 @@ class Osm(object):
 				for idx,way_node in enumerate(way_nodes):
 					way_node.idx = idx
 					
-				#create the road
-				nature = classes.Road(nodes=way_nodes,parent=self.ghash_entity.key,id=child.attrib["id"])
+				#create the nature
+				nature = classes.Nature(nodes=way_nodes,parent=self.ghash_entity.key,id=child.attrib["id"])
 				
-				#push the road onto the array
+				#push the nature onto the array
 				natures.append(nature)
 		
+		#store the array in the db
+		ndb.put_multi(natures)
 		
 		
 	def get_buildings(self):
-		pass
+		url = self.base_url + '[amenity=*]'
+		logging.info(url)
+		root = self.get_data(url)
+		#empty node dict
+		nodes = {}
+		buildings = []
+		
+		'''
+		Most buildings are handled as nodes, not ways. This is the geometry layer. So this function will return the building shape if it exists. We will handle the points-of-interest as NODES elsewhere. This is just for geographic shapes to aid in drawing
+		'''
+		
+		for child in root:
+			if child.tag=='node':
+				#nodes should be at the top
+				geo = ndb.GeoPt(child.attrib['lat'],child.attrib['lon'])
+				node = classes.Node(geo_point=geo)
+				nodes.update({child.attrib["id"]:node})
+			elif child.tag=='way':
+				way_nodes = []
+				building_name = ""
+				building_type = ""
+				for way_child in child:
+# 					logging.info(child.tag)
+					if way_child.tag == 'nd':
+						#save node rederence in order
+						way_nodes.append(copy.copy(nodes[way_child.attrib['ref']]))
+# 						logging.info(nodes[child.attrib['ref']])
+						
+					elif way_child.attrib['k']=='leisure':
+						nature_type = way_child.attrib['v']
+						logging.info(building_type)
+					elif way_child.attrib['k']=='name':
+						nature_name = way_child.attrib['v']
+						logging.info(building_name)
+					
+				
+				#grab the required nodes and create the entity
+				for idx,way_node in enumerate(way_nodes):
+					way_node.idx = idx
+					
+				#create the building
+				building = classes.Building(nodes=way_nodes,parent=self.ghash_entity.key,id=child.attrib["id"])
+				
+				#push the building onto the array
+				buildings.append(building)
+				
+# 		logging.info(buildings)
+		
+		#store the array in the db
+		ndb.put_multi(buildings)
