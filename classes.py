@@ -65,7 +65,20 @@ class GHash(ndb.Model):
 			probabilities = vibes.calculate_vibe(ground_counts,places_counts)
 			
 		except Exception,e:
-			logging.error(str(e))
+			logging.error(e)
+	
+	def repopulate(self):
+		'''
+		Clear the geohash and go thru the same steps as populate
+		'''
+		try:
+			#delete all children
+			'''THIS IS NOT WORKING AND IM BUSY'''
+			ndb.delete_multi(Ground.query(ancestor=self.key).fetch(None))
+			self.populate()
+			
+		except Exception,e:
+			logging.error(e)
 	
 	def calculate_vibe(self):
 		'''

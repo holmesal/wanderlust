@@ -14,6 +14,7 @@ import json
 import itertools
 import jinja2
 import os
+from geo import geohash
 
 class BaseHandler(webapp2.RequestHandler):
 	def set_plaintext(self):
@@ -46,14 +47,43 @@ class BaseHandler(webapp2.RequestHandler):
 				}
 		self.response.out.write(json.dumps(reply))
 	
+	def view_geohash(self,geo_hash):
+		ent = classes.GHash.get_or_insert(geo_hash)
+		
+		db_roads = classes.Road.query(ancestor=ent.key).fetch(None)
+		roads = self.package_to_visualizer(db_roads)
+		
+		db_natures = classes.Nature.query(ancestor=ent.key).fetch(None)
+		natures = self.package_to_visualizer(db_natures)
+		
+		db_leisures = classes.Leisure.query(ancestor=ent.key).fetch(None)
+		leisures = self.package_to_visualizer(db_leisures)
+		
+		db_buildingfootprints = classes.BuildingFootprint.query(ancestor=ent.key).fetch(None)
+		buildingfootprints = self.package_to_visualizer(db_buildingfootprints)
+			
+		center = geohash.decode(ent.name)
+		self.visualize(center,roads=roads,natures=natures,leisures=leisures,buildingfootprints=buildingfootprints)
+	
+	def package_to_visualizer(self,db_ents):
+		output = []
+			
+		for db_ent in db_ents:
+			coords = []
+			for node in db_ent.nodes:
+				coord = [node.geo_point.lon,node.geo_point.lat]
+				coords.append(coord)
+			out = {	"subname":db_ent.subname,
+					"subtype":db_ent.subtype,
+					"geometry":coords}
+			output.append(out)
+		
+		return output
+	
 	def visualize(self,center,**kwargs):
 		
 		'''
-		roads are many linestrings
-		leisures are a multipolygon
-		natures are a multipolygon
-		buildingfootprints are a multipolygon
-		structures are a multipoint
+		better than the itunes visualizer
 		'''
 		
 		def visual_package(input_array,display_type):

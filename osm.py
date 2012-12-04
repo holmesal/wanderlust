@@ -132,7 +132,7 @@ class Osm(object):
 		
 		
 	def get_buildings(self):
-		url = self.base_url + '[amenity=*]'
+		url = self.base_url + '[building=*]'
 		logging.info(url)
 		root = self.get_data(url)
 		#empty node dict
@@ -163,7 +163,7 @@ class Osm(object):
 						way_nodes.append(copy.copy(nodes[way_child.attrib['ref']]))
 # 						logging.info(nodes[child.attrib['ref']])
 						
-					elif way_child.attrib['k']=='amenity':
+					elif way_child.attrib['k']=='building':
 						subtype = way_child.attrib['v']
 						logging.info(subtype)
 					elif way_child.attrib['k']=='name':
