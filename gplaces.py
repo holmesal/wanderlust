@@ -6,6 +6,7 @@ from google.appengine.api import urlfetch
 from google.appengine.ext import ndb
 
 import classes
+import structures
 from geo import geohash
 import geo_utils
 
@@ -93,7 +94,7 @@ class Gplaces(object):
 			subtype = intersection[0]
 			geo_point = ndb.GeoPt(result["geometry"]["location"]["lat"],result["geometry"]["location"]["lng"])
 			subname = result["name"]
-			building = classes.Building(subtype=subtype,subname=subname,parent=self.ghash_entity.key,id=result["id"],geo_point=geo_point)
+			building = structures.Building(subtype=subtype,subname=subname,parent=self.ghash_entity.key,id=result["id"],geo_point=geo_point)
 			buildings.append(building)
 			logging.info(subtype)
 			logging.info(subname)
@@ -102,7 +103,9 @@ class Gplaces(object):
 		ndb.put_multi(buildings)
 		
 		#return the number of buildings - only up to 20
+		logging.info(count)
 		count += len(buildings)
+		logging.info(count)
 			
 		if "next_page_token" in data:
 			pagetoken = data["next_page_token"]
@@ -111,8 +114,10 @@ class Gplaces(object):
 			logging.info("going to sleep")
 			time.sleep(3)
 			logging.info("woke up!")
-			self.get_buildings(len(buildings))
+			return self.get_buildings(count)
+		else:
+			return count
 		
-		return count
+		
 		
 		
