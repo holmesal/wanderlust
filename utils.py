@@ -1,6 +1,7 @@
 from geo import geohash
 from google.appengine.ext import ndb
 import classes
+import structures
 import itertools
 import json
 import logging
@@ -85,7 +86,7 @@ class EnvironmentData(object):
 		@return: everything on the structure layer for each ghash - list of lists
 		@rtype: list
 		'''
-		return self.fetch_futures(classes.Structure)
+		return self.fetch_futures(structures.Structure)
 	def fetch_futures(self,model_class):
 		'''
 		
@@ -194,8 +195,8 @@ class PopulateEmptySpace(object):
 		dy = span_y_degrees/num_y_points
 		
 		# calculate the actual arrays of coordinates
-		x_points = [bbox['w'] + n*dx for n in range(1,num_x_points+1)]
-		y_points = [bbox['n'] - n*dy for n in range(1,num_y_points+1)]
+		x_points = tuple([bbox['w'] + n*dx for n in range(1,num_x_points+1)])
+		y_points = tuple([bbox['n'] - n*dy for n in range(1,num_y_points+1)])
 		
 		#=======================================================================
 		# assign vars
@@ -210,16 +211,22 @@ class PopulateEmptySpace(object):
 		self.dy = dy
 		self.x_points = x_points
 		self.y_points = y_points
-		
+		self.matrix = [[(x,y) for x in x_points] for y in y_points]
+		self.free_space_matrix = [[True for x in x_points] for y in y_points]
 	
 	@staticmethod
-	def extract_points_from_shapes(grounds):
-		nodes = [x.nodes.geo_point for x in grounds]
-		return nodes
-	@staticmethod
-	def extract_points_from_structures(structures):
-		nodes = [x.geo_point for x in structures]
-		return nodes
+	def extract_nodes(grounds):
+		'''
+		@param grounds: a list of ground entites that exist in the ghash
+		@type grounds: list
+		
+		@return: a list of vectors representing ground elements
+		@rtype: list
+		'''
+		vectors = []
+		for ground in grounds:
+			vectors.append([node.geo_point_xy_tuple for node in ground.nodes])
+		return vectors
 		
 	def pick_object_kind(self,probabilities):
 		'''
@@ -239,7 +246,7 @@ class PopulateEmptySpace(object):
 			if rand_num <= counter:
 				return item
 		raise Exception('Object picking did not work.')
-	def run(self):
+	def run_v1(self):
 		'''
 		
 		'''
@@ -256,6 +263,64 @@ class PopulateEmptySpace(object):
 				col.append(img)
 			matrix.append(col)
 		return matrix
+	def run_v2(self):
+		'''
+		
+		'''
+		for shape in self.shapes:
+			bbox = self.calc_bbox(shape)
+			sub_y,sub_x = self.fetch_sub_matrix(bbox)
+#			sub_y_idx,sub_y_pt = zip(*sub_y)
+#			sub_x_idx,sub_x_pt = zip(*sub_x)
+			for y_idx,y in sub_y:
+				for x_idx,x in sub_x:
+					if self.point_inside_polygon(x, y, shape):
+						self.free_space_matrix[y_idx][x_idx] = False
+						
+		return self.free_space_matrix
+		
+	def fetch_sub_matrix(self,bbox):
+		'''
+		@param bbox: dict contains keys: n,s,e,w
+		@type bbox: dict
+		
+		idea: find the idx of the top left corner of the sub matrix
+			I know the dx in degrees between each point, and know the width in degrees
+			I therefore know the width in terms of list indexes
+		'''
+#		assert False, (bbox['s'],self.y_points[0],self.y_points[-1],bbox['n'])
+		sub_y = filter(lambda y: y[1] < bbox['n'] and y[1] > bbox['s'],enumerate(self.y_points))
+		sub_x = filter(lambda x: x[1] > bbox['w'] and x[1] < bbox['e'],enumerate(self.x_points))
+		return sub_y,sub_x
+		
+	@staticmethod
+	def calc_bbox(poly):
+		'''
+		Calculates the minimum bounding box for a shape
+		@param shape: a polygon, a list of tuples
+		@type shape: list
+		'''
+		lons,lats = zip(*poly)
+		bbox = {
+			'n' : max(lats),
+			's' : min(lats),
+			'e' : max(lons),
+			'w' : min(lons)
+			}
+		return bbox
+	def parse_sub_matrix(self,poly,matrix):
+		'''
+		'''
+		success_matrix = []
+		for y in matrix:
+			col = []
+			for x in y:
+				if self.point_inside_polygon(x, y, poly):
+					col.append(True)
+				else:
+					col.append(False)
+			success_matrix.append(col)
+		return success_matrix
 
 	def step(self,xpoints,ypoints):
 		'''
@@ -281,22 +346,6 @@ class PopulateEmptySpace(object):
 		return inside
 		
 	
-	def point_on_vector(self,x,y,vector):
-		'''
-		Checks if a point, x,y lies ON a vector. Don't know if it works
-		'''
-		for i in range(len(vector)):
-			p1 = None
-			p2 = None
-			if i == 0:
-				p1 = vector[0]
-				p2 = vector[1]
-			else:
-				p1 = vector[i-1]
-				p2 = vector[i]
-			if p1[1] == p2[1] and x > min(p1[0], p2[0]) and x < max(p1[0],p2[0]):
-				return True
-		return False
 			
 			
 #######GEO DISTANCES
