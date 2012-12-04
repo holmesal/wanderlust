@@ -5,7 +5,6 @@ import logging
 import sys
 import traceback
 import json
-import itertools
 
 class BaseHandler(webapp2.RequestHandler):
 	def set_plaintext(self):
@@ -102,12 +101,6 @@ class EnvironmentData(object):
 				r.append([fut.get_result() for fut in future_list])
 			result.append(r)
 		return result
-	def fetch_data(self):
-		ground_futures = self.fetch_ground_futures()
-		structure_futures = self.fetch_structure_futures()
-		
-		return self.harvest_futures(ground_futures,structure_futures)
-		
 	#===========================================================================
 	# Packaging
 	#===========================================================================
@@ -147,25 +140,7 @@ class EnvironmentData(object):
 						
 						})
 		return package
-
-class PopulateEmptySpace(object):
-	def __init__(self,ghash_string,roads,shapes):
-		self.ghash_string = ghash_string
-		self.ghash_key = ndb.Key(classes.GHash,ghash_string)
-		# these are lists of geo_points
-		self.roads = roads
-		self.shapes = shapes
-	
-	@staticmethod
-	def extract_points_from_shapes(grounds):
-		nodes = [x.nodes.geo_point for x in grounds]
-#		nodes = list(itertools.chain(*nested_nodes))
-		return nodes
-	@staticmethod
-	def extract_points_from_structures(structures):
-		nodes = [x.geo_point for x in structures]
-		return nodes
-	
+		
 
 def log_error(message=''):
 	#called by: log_error(*self.request.body)
