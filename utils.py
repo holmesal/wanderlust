@@ -6,6 +6,9 @@ import sys
 import traceback
 import json
 import itertools
+from geo import geohash
+import math
+import random
 
 class BaseHandler(webapp2.RequestHandler):
 	def set_plaintext(self):
@@ -149,12 +152,25 @@ class EnvironmentData(object):
 		return package
 
 class PopulateEmptySpace(object):
+	buffer_space = 2
 	def __init__(self,ghash_string,roads,shapes):
 		self.ghash_string = ghash_string
 		self.ghash_key = ndb.Key(classes.GHash,ghash_string)
+		
 		# these are lists of geo_points
 		self.roads = roads
 		self.shapes = shapes
+		
+		# get bounds for the geohash
+		bbox = geohash.bbox(ghash_string)
+		self.bbox = bbox
+		# coordinates are in form lon,lat, or x,y
+		self.top_left = bbox['w'],bbox['n']
+		self.bot_right = bbox['e'],bbox['s']
+		
+		self.degree_width = math.fabs(bbox['w'] - bbox['e'])
+		self.degree_height = math.fabs(bbox['n'] - bbox['s'])
+		
 	
 	@staticmethod
 	def extract_points_from_shapes(grounds):
@@ -166,6 +182,36 @@ class PopulateEmptySpace(object):
 		nodes = [x.geo_point for x in structures]
 		return nodes
 	
+	def step(self):
+		'''
+		Moves from one point to the next, raster fashion
+		'''
+	def pick_object_kind(self,probabilities):
+		'''
+		Selects an item to place based on a probability mapping in the probabilities dict
+		@param probabilities: probability mapping of probability:entity_kind
+		@type probabilities: dict
+		
+		@return: The type of entity to place in the selected space
+		@rtype: ndb.polymodel.PolyModel
+		'''
+		max_val = sum([key for key in probabilities])
+		counter = 0.
+		rand_num = random.uniform(0,max_val)
+		
+		p = {}
+		p.i
+		for prob,item in probabilities.iteritems():
+			counter += prob
+			if rand_num <= counter:
+				return item
+		raise Exception('Object picking did not work.')
+	def rasterize(self):
+		'''
+		Breaks a bounding box into discrete points
+		'''
+		xs = [x/100 for x in range()]
+		
 
 def log_error(message=''):
 	#called by: log_error(*self.request.body)
