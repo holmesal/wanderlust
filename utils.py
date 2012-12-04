@@ -63,7 +63,7 @@ class EnvironmentData(object):
 		ghash_key_list = []
 		for ghash in ghash_strings:
 			assert ghash.__len__() == classes.GHash._precision, ghash.__len__()
-			assert type(ghash) == str, type(ghash)
+			assert type(ghash) == str or type(ghash) == unicode, type(ghash)
 			ghash_key_list.append(ndb.Key(classes.GHash,ghash))
 		
 		return ghash_key_list
@@ -88,12 +88,8 @@ class EnvironmentData(object):
 		@param model_class:
 		@type model_class:
 		'''
-#		for ghash in self.ghash_keys:
-#			assert model_class == classes.Ground, (model_class,classes.Ground)
-#			stuff = model_class.query(ancestor=ghash).fetch(None)
-#			assert False, stuff
-		# a list of lists of keys
-		keys_lists = [model_class.query(ancestor=ghash).fetch(None,keys_only=True) for ghash in self.ghash_keys]
+		# a list of list of query iterators for grabbing keys. iter cuts time in half vs fetch
+		keys_lists = [model_class.query(ancestor=ghash).iter(batch_size=50,keys_only=True) for ghash in self.ghash_keys]
 		# a list of lists of Future entities
 		future_entities = [ndb.get_multi_async(keys) for keys in keys_lists]
 		return future_entities

@@ -57,8 +57,16 @@ class Ground(polymodel.PolyModel):
 	nodes = ndb.LocalStructuredProperty(Node,repeated=True)
 	def package(self,packaged={}):
 		packaged.update({
+						'id' : self.key.id(),
+						'types' : self.class_,
 						'nodes' : [node.package() for node in self.nodes]
 						})
+		try:
+			subtype = packaged['subtype']
+			packaged['types'].append(subtype)
+			del packaged['subtype']
+		except:
+			pass
 		return packaged
 
 class Road(Ground):
@@ -73,7 +81,6 @@ class Road(Ground):
 						'subname' : self.subname
 						})
 		return super(Road,self).package(packaged)
-		
 class Leisure(Ground):
 	'''
 	Urban wildlife
@@ -109,7 +116,7 @@ class BuildingFootprint(Ground):
 	def package(self):
 		packaged = {
 				'subtype' : self.subtype,
-				'subname' : self.subname
+				'name' : self.subname
 				}
 		return super(BuildingFootprint,self).package(packaged)
 
@@ -124,8 +131,16 @@ class Structure(polymodel.PolyModel):
 	geo_point = ndb.GeoPtProperty(required=True, indexed=False)		#refers to the center of the structure
 	def package(self,packaged={}):
 		packaged.update({
-						'geo_point' : self.geo_point
+						'id' : self.key.id(),
+						'types' : self.class_,
+						'geo_point' : str(self.geo_point)
 						})
+		try:
+			subtype = packaged['subtype']
+			packaged['types'].append(subtype)
+			del packaged['subtype']
+		except:
+			pass
 		return packaged
 		
 	

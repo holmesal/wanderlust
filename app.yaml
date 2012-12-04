@@ -15,6 +15,9 @@ handlers:
 - url: /test
   script: test.app
 
+# api
+- url: /api/request.*
+  script: api.request.app
 
 #tasks and cronjobs
 - url: /tasks.*
