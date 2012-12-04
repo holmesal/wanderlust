@@ -153,6 +153,7 @@ class EnvironmentData(object):
 
 class PopulateEmptySpace(object):
 	buffer_space = 2
+	feet_between_points = 5
 	def __init__(self,ghash_string,roads,shapes):
 		self.ghash_string = ghash_string
 		self.ghash_key = ndb.Key(classes.GHash,ghash_string)
@@ -206,12 +207,64 @@ class PopulateEmptySpace(object):
 			if rand_num <= counter:
 				return item
 		raise Exception('Object picking did not work.')
+	
 	def rasterize(self):
 		'''
 		Breaks a bounding box into discrete points
 		'''
-		xs = [x/100 for x in range()]
+		# calculate width in feet
+		lat1 = lat2 = self.bbox['n']
+		lon1 = self.bbox['w']
+		lon2 = self.bbox['e']
+		delta_x_feet = distance_between_points(lat1, lon1, lat2, lon2)
 		
+		
+		
+		# calculate height in feet
+		lon1 = lon2 = self.bbox['w']
+		lat1 = self.bbox['s']
+		lat2 = self.bbox['n']
+		delta_y_feet = distance_between_points(lat1, lon1, lat2, lon2)
+		# calculate the number of vertical steps
+		num_xpoints = int(math.floor(delta_x_feet/self.feet_between_points))
+		num_ypoints = int(math.floor(delta_y_feet/self.feet_between_points))
+		
+		# calculate the number of steps
+		span_x_degrees = math.fabs(self.bbox['w'] - self.bbox['e'])
+		span_y_degrees = math.fabs(self.bbox['n']- self.bbox['s'])
+		
+		
+		dx = span_x_degrees/num_xpoints
+		dy = span_y_degrees/num_ypoints
+		
+		xpoints = [n*dx for n in range(1,num_xpoints+1)]
+		ypoints = [n*dy for n in range(1,num_ypoints+1)]
+		
+		return xpoints,ypoints
+
+#######GEO DISTANCES
+
+def distance_between_points(lat1, lon1, lat2, lon2):
+	# all args are in degrees
+	# WARNING: loss of absolute precision when points are near-antipodal
+	Earth_radius_km = 6371.0 #@UnusedVariable
+	Earth_radius_mi = 3958.76
+	feet_per_mile = 5280
+	RADIUS = Earth_radius_mi*feet_per_mile
+	def haversine(angle_radians):
+		return math.sin(angle_radians / 2.0) ** 2
+	
+	def inverse_haversine(h):
+		return 2 * math.asin(math.sqrt(h)) # radians
+	
+	lat1 = math.radians(lat1)
+	lat2 = math.radians(lat2)
+	dlat = lat2 - lat1
+	dlon = math.radians(lon2 - lon1)
+	h = haversine(dlat) + math.cos(lat1) * math.cos(lat2) * haversine(dlon)
+	return RADIUS * inverse_haversine(h)
+
+
 
 def log_error(message=''):
 	#called by: log_error(*self.request.body)
