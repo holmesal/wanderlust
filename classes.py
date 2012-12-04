@@ -83,7 +83,7 @@ class Road(Ground):
 		return super(Road,self).package(packaged)
 class Leisure(Ground):
 	'''
-	Urban wildlife
+	outdoor entertainment. man-made. think parks, playgrounds, etc
 	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
@@ -96,7 +96,8 @@ class Leisure(Ground):
 		
 class Nature(Ground):
 	'''
-	Wildlife wildlife
+	Completely natural features - not man made (okay, beaches can be manmade, but you know what i mean).
+	Think coastline, etc
 	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()
@@ -109,7 +110,7 @@ class Nature(Ground):
 
 class BuildingFootprint(Ground):
 	'''
-	
+	outlines of buildings. only exists in some places
 	'''
 	subtype = ndb.StringProperty(required=True)
 	subname = ndb.StringProperty()

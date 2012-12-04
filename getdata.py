@@ -37,6 +37,10 @@ class OsmHandler(utils.BaseHandler):
 		self.response.out.write('Done!')
 		self.say(successes)
 		self.say(datetime.now() - t0)
+# 		geo_point = 42.3697785,-71.0391343 # maverick square
+# # 		geo_point = 42.358431,-71.059773 # downtown
+# # 		geo_point = 42.383992,-71.010427 # costal
+# 		ghash = geohash.encode(geo_point[0], geo_point[1], classes.GHash._precision)
 		
 
 class GplacesHandler(utils.BaseHandler):
