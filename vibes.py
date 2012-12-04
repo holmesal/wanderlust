@@ -6,8 +6,8 @@ def calculate_vibe(ground_counts,places_counts):
 	'''
 	Figure out what degree of urbanity a place is, based on what sort of ground and place layers are returned
 	'''
-# 	logging.info(ground_counts)
-# 	logging.info(places_counts)
+ 	logging.info(ground_counts)
+ 	logging.info(places_counts)
 	
 	#for now, keep it linear: 0=countryside, 1=city
 	#for now, base purely on the number of google places results returned
