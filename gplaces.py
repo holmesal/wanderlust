@@ -31,7 +31,7 @@ class Gplaces(object):
 		pass
 		
 		
-	def get_buildings(self):
+	def get_buildings(self,count=0):
 # 		supported_types = [
 # 			"bank",
 # 			"bar",
@@ -100,7 +100,9 @@ class Gplaces(object):
 		
 		#store everything
 		ndb.put_multi(buildings)
-			
+		
+		#return the number of buildings - only up to 20
+		count += len(buildings)
 			
 		if "next_page_token" in data:
 			pagetoken = data["next_page_token"]
@@ -109,6 +111,8 @@ class Gplaces(object):
 			logging.info("going to sleep")
 			time.sleep(3)
 			logging.info("woke up!")
-			self.get_buildings()
+			self.get_buildings(len(buildings))
+		
+		return count
 		
 		

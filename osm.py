@@ -71,6 +71,9 @@ class Osm(object):
 		#store the array in the db
 		ndb.put_multi(roads)
 		
+		#return the count
+		return len(roads)
+		
 	def get_nature(self):
 		url = self.base_url + '[natural=*]'
 		logging.info(url)
@@ -123,6 +126,9 @@ class Osm(object):
 		
 		#store the array in the db
 		ndb.put_multi(natures)
+		
+		#return the count
+		return len(natures)
 		
 		
 	def get_buildings(self):
@@ -180,6 +186,9 @@ class Osm(object):
 		#store the array in the db
 		ndb.put_multi(building_footprints)
 		
+		#return the count
+		return len(building_footprints)
+		
 		
 		
 	def get_leisure(self):
@@ -230,3 +239,6 @@ class Osm(object):
 		
 		#store the array in the db
 		ndb.put_multi(leisures)
+		
+		#return the count
+		return len(leisures)

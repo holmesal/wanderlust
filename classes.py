@@ -1,6 +1,10 @@
 from google.appengine.ext import ndb
 from google.appengine.ext.ndb import polymodel
 from geo import geohash
+import osm
+import gplaces
+import logging
+import vibes
 
 
 class GHash(ndb.Model):
@@ -29,12 +33,40 @@ class GHash(ndb.Model):
 					bbox['n']
 					]
 		return bbox_list
+		
+	def populate(self):
+		'''
+		Create an Osm entity and populate with roads, etc
+		Then create a Gmaps entity and populate with buildings and places, etc
+		'''
+		try:
+			# open street maps
+			tile = osm.Osm(self)
+			nature_count = tile.get_nature()
+			roads_count = tile.get_roads()
+			buildings_count = tile.get_buildings()
+			leisure_count = tile.get_leisure()
+			
+			places = gplaces.Gplaces(self)
+			places_count = places.get_buildings()
+			
+			logging.info(nature_count)
+			logging.info(roads_count)
+			logging.info(buildings_count)
+			logging.info(leisure_count)
+			logging.info(places_count)
+		except Exception,e:
+			logging.error(str(e))
 	
-	def refresh(self):
+	def calculate_vibe(self):
 		'''
-		remove everything inside this geohash, and re-populate
+		Figure out how many roads, buildings, etc are in this geohash
+		Use this to generate a probability dictionary for this geohash
 		'''
-		pass
+		
+		count_roads = Road.query(ancestor=self.key).count()
+		count_nature = Nature.query(ancestor=self.key).count()
+		
 		
 class Node(ndb.Model):
 	# position of this node in the way
