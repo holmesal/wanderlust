@@ -22,7 +22,8 @@ class OsmHandler(utils.BaseHandler):
 			try:
 				ghash = geohash.encode(geo_point[0], geo_point[1], classes.GHash._precision)
 				
-				geo_hash_entity = classes.GHash.get_or_insert(ghash)
+# 				geo_hash_entity = classes.GHash.get_or_insert(ghash)
+				geo_hash_entity = classes.GHash.get_or_insert('drt2zp')
 				# tile = osm.Osm(geo_hash_entity) 
 # 				tile.get_nature()
 # 				tile.get_roads()
