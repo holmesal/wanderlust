@@ -165,28 +165,61 @@ class PopulateEmptySpace(object):
 		# get bounds for the geohash
 		bbox = geohash.bbox(ghash_string)
 		self.bbox = bbox
-		# coordinates are in form lon,lat, or x,y
-		self.top_left = bbox['w'],bbox['n']
-		self.bot_right = bbox['e'],bbox['s']
 		
-		self.degree_width = math.fabs(bbox['w'] - bbox['e'])
-		self.degree_height = math.fabs(bbox['n'] - bbox['s'])
+		#=======================================================================
+		# Breaks up geohash into a matrix of points
+		#=======================================================================
+		
+		# calculate width in feet
+		lat1 = lat2 = self.bbox['n']
+		lon1 = self.bbox['w']
+		lon2 = self.bbox['e']
+		span_x_feet = distance_between_points(lat1, lon1, lat2, lon2)
+		
+		
+		
+		# calculate height in feet
+		lon1 = lon2 = self.bbox['w']
+		lat1 = self.bbox['s']
+		lat2 = self.bbox['n']
+		span_y_feet = distance_between_points(lat1, lon1, lat2, lon2)
+		# calculate the number of vertical steps
+		num_x_points = int(math.floor(span_x_feet/self.feet_between_points))
+		num_y_points = int(math.floor(span_y_feet/self.feet_between_points))
+		
+		# calculate the number of steps
+		span_x_degrees = math.fabs(self.bbox['w'] - self.bbox['e'])
+		span_y_degrees = math.fabs(self.bbox['n']- self.bbox['s'])
+		
+		
+		dx = span_x_degrees/num_x_points
+		dy = span_y_degrees/num_y_points
+		
+		x_points = [n*dx for n in range(1,num_x_points+1)]
+		y_points = [n*dy for n in range(1,num_y_points+1)]
+		
+		# assign vars
+		self.span_x_feet = span_x_feet
+		self.span_y_feet = span_y_feet
+		self.num_x_points = num_x_points
+		self.num_y_points = num_y_points
+		self.span_x_degrees = span_x_degrees
+		self.span_y_degrees = span_y_degrees
+		self.dx = dx
+		self.dy = dy
+		self.x_points = x_points
+		self.y_points = y_points
 		
 	
 	@staticmethod
 	def extract_points_from_shapes(grounds):
 		nodes = [x.nodes.geo_point for x in grounds]
-#		nodes = list(itertools.chain(*nested_nodes))
 		return nodes
 	@staticmethod
 	def extract_points_from_structures(structures):
 		nodes = [x.geo_point for x in structures]
 		return nodes
-	
-	def step(self):
-		'''
-		Moves from one point to the next, raster fashion
-		'''
+		
 	def pick_object_kind(self,probabilities):
 		'''
 		Selects an item to place based on a probability mapping in the probabilities dict
@@ -200,48 +233,21 @@ class PopulateEmptySpace(object):
 		counter = 0.
 		rand_num = random.uniform(0,max_val)
 		
-		p = {}
-		p.i
 		for prob,item in probabilities.iteritems():
 			counter += prob
 			if rand_num <= counter:
 				return item
 		raise Exception('Object picking did not work.')
-	
-	def rasterize(self):
+	def run(self):
 		'''
-		Breaks a bounding box into discrete points
+		
 		'''
-		# calculate width in feet
-		lat1 = lat2 = self.bbox['n']
-		lon1 = self.bbox['w']
-		lon2 = self.bbox['e']
-		delta_x_feet = distance_between_points(lat1, lon1, lat2, lon2)
 		
+	def step(self,xpoints,ypoints):
+		'''
+		Moves from one point to the next, raster fashion
+		'''
 		
-		
-		# calculate height in feet
-		lon1 = lon2 = self.bbox['w']
-		lat1 = self.bbox['s']
-		lat2 = self.bbox['n']
-		delta_y_feet = distance_between_points(lat1, lon1, lat2, lon2)
-		# calculate the number of vertical steps
-		num_xpoints = int(math.floor(delta_x_feet/self.feet_between_points))
-		num_ypoints = int(math.floor(delta_y_feet/self.feet_between_points))
-		
-		# calculate the number of steps
-		span_x_degrees = math.fabs(self.bbox['w'] - self.bbox['e'])
-		span_y_degrees = math.fabs(self.bbox['n']- self.bbox['s'])
-		
-		
-		dx = span_x_degrees/num_xpoints
-		dy = span_y_degrees/num_ypoints
-		
-		xpoints = [n*dx for n in range(1,num_xpoints+1)]
-		ypoints = [n*dy for n in range(1,num_ypoints+1)]
-		
-		return xpoints,ypoints
-
 #######GEO DISTANCES
 
 def distance_between_points(lat1, lon1, lat2, lon2):
