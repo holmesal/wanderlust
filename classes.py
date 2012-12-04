@@ -78,6 +78,9 @@ class Node(ndb.Model):
 			'idx' : self.idx,
 			'geo_point' : str(self.geo_point)
 			}
+	@property
+	def geo_point_xy_tuple(self):
+		return (self.geo_point.lon,self.geo_point.lat)
 
 
 class Ground(polymodel.PolyModel):
