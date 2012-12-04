@@ -1,14 +1,14 @@
-import classes
-import webapp2
-from google.appengine.ext import ndb
-import logging
-import sys
-import traceback
-import json
-import itertools
 from geo import geohash
+from google.appengine.ext import ndb
+import classes
+import itertools
+import json
+import logging
 import math
 import random
+import sys
+import traceback
+import webapp2
 
 class BaseHandler(webapp2.RequestHandler):
 	def set_plaintext(self):
@@ -150,55 +150,56 @@ class EnvironmentData(object):
 						
 						})
 		return package
-
 class PopulateEmptySpace(object):
 	buffer_space = 2
 	feet_between_points = 5
-	def __init__(self,ghash_string,roads,shapes):
+	def __init__(self,ghash_string,shapes,vectors,points):
 		self.ghash_string = ghash_string
 		self.ghash_key = ndb.Key(classes.GHash,ghash_string)
 		
+		
 		# these are lists of geo_points
-		self.roads = roads
+		self.points = points
+		self.roads = vectors
 		self.shapes = shapes
 		
 		# get bounds for the geohash
 		bbox = geohash.bbox(ghash_string)
-		self.bbox = bbox
 		
 		#=======================================================================
 		# Breaks up geohash into a matrix of points
 		#=======================================================================
-		
 		# calculate width in feet
-		lat1 = lat2 = self.bbox['n']
-		lon1 = self.bbox['w']
-		lon2 = self.bbox['e']
+		lat1 = lat2 = bbox['n']
+		lon1 = bbox['w']
+		lon2 = bbox['e']
 		span_x_feet = distance_between_points(lat1, lon1, lat2, lon2)
 		
-		
-		
 		# calculate height in feet
-		lon1 = lon2 = self.bbox['w']
-		lat1 = self.bbox['s']
-		lat2 = self.bbox['n']
+		lon1 = lon2 = bbox['w']
+		lat1 = bbox['s']
+		lat2 = bbox['n']
 		span_y_feet = distance_between_points(lat1, lon1, lat2, lon2)
-		# calculate the number of vertical steps
+		
+		# calculate the number of steps
 		num_x_points = int(math.floor(span_x_feet/self.feet_between_points))
 		num_y_points = int(math.floor(span_y_feet/self.feet_between_points))
 		
-		# calculate the number of steps
-		span_x_degrees = math.fabs(self.bbox['w'] - self.bbox['e'])
-		span_y_degrees = math.fabs(self.bbox['n']- self.bbox['s'])
+		# calculate the width 
+		span_x_degrees = math.fabs(bbox['w'] - bbox['e'])
+		span_y_degrees = math.fabs(bbox['n']- bbox['s'])
 		
-		
+		# calculate the step size in degrees
 		dx = span_x_degrees/num_x_points
 		dy = span_y_degrees/num_y_points
 		
-		x_points = [n*dx for n in range(1,num_x_points+1)]
-		y_points = [n*dy for n in range(1,num_y_points+1)]
+		# calculate the actual arrays of coordinates
+		x_points = [bbox['w'] + n*dx for n in range(1,num_x_points+1)]
+		y_points = [bbox['n'] - n*dy for n in range(1,num_y_points+1)]
 		
+		#=======================================================================
 		# assign vars
+		#=======================================================================
 		self.span_x_feet = span_x_feet
 		self.span_y_feet = span_y_feet
 		self.num_x_points = num_x_points
@@ -242,12 +243,62 @@ class PopulateEmptySpace(object):
 		'''
 		
 		'''
-		
+		matrix = []
+		for y in self.y_points:
+			col = []
+			for x in self.x_points:
+				for shape in self.shapes:
+					if self.point_inside_polygon(x, y, shape):
+						img = '*'
+						break
+					else:
+						img = '.'
+				col.append(img)
+			matrix.append(col)
+		return matrix
+
 	def step(self,xpoints,ypoints):
 		'''
 		Moves from one point to the next, raster fashion
 		'''
+	@staticmethod
+	def point_inside_polygon(x,y,poly):
+
+		n = len(poly)
+		inside = False
+		p1x,p1y = poly[0]
+		for i in range(n+1):
+			p2x,p2y = poly[i % n]
+			if y > min(p1y,p2y):
+				if y <= max(p1y,p2y):
+					if x <= max(p1x,p2x):
+						if p1y != p2y:
+							xinters = (y-p1y)*(p2x-p1x)/(p2y-p1y)+p1x
+						if p1x == p2x or x <= xinters:
+							inside = not inside
+			p1x,p1y = p2x,p2y
 		
+		return inside
+		
+	
+	def point_on_vector(self,x,y,vector):
+		'''
+		Checks if a point, x,y lies ON a vector. Don't know if it works
+		'''
+		for i in range(len(vector)):
+			p1 = None
+			p2 = None
+			if i == 0:
+				p1 = vector[0]
+				p2 = vector[1]
+			else:
+				p1 = vector[i-1]
+				p2 = vector[i]
+			if p1[1] == p2[1] and x > min(p1[0], p2[0]) and x < max(p1[0],p2[0]):
+				return True
+		return False
+			
+			
 #######GEO DISTANCES
 
 def distance_between_points(lat1, lon1, lat2, lon2):
