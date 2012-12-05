@@ -81,7 +81,7 @@ L.tileLayer('http://{s}.tile.cloudmade.com/{key}/22677/256/{z}/{x}/{y}.png', {
 
 			layer.bindPopup(popupContent);
 		}
-		L.geoJson(roads,{onEachFeature: onEachFeature}).addTo(map).setStyle({"opacity":1,"weight":0,"color":"red","fillColor":"yellow","fillOpacity":"0.2"});
+		L.geoJson(roads,{onEachFeature: onEachFeature}).addTo(map).setStyle({"opacity":1,"weight":0,"color":"red","fillColor":"black","fillOpacity":"0.7"});
 		L.geoJson(bushes,{onEachFeature: onEachFeature}).addTo(map).setStyle({"opacity":1,"weight":0,"color":"red","fillColor":"green","fillOpacity":"0.5"});
 		L.geoJson(trees,{onEachFeature: onEachFeature}).addTo(map).setStyle({"opacity":1,"weight":0,"color":"red","fillColor":"#285907","fillOpacity":"0.8"});
 		L.geoJson(grass,{onEachFeature: onEachFeature}).addTo(map).setStyle({"opacity":1,"weight":0,"color":"red","fillColor":"green","fillOpacity":"0.2"});

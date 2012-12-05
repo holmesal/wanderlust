@@ -112,6 +112,8 @@ def visualize_blocks(self,matrix,blocks_meta,ul_corner_geo,width,height):
 				output["trees"].append(json.dumps(packaged_feature))
 			elif item == 7:
 				output["grass"].append(json.dumps(packaged_feature))
+			else:
+				pass
 			
 			
 			
