@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Leaflet Layers Control Example</title>
+	<meta charset="utf-8" />
+
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<link rel="stylesheet" href="./css/leaflet.css" />
+	<!--[if lte IE 8]><link rel="stylesheet" href="../dist/leaflet.ie.css" /><![endif]-->
+</head>
+<body>
+	<div id="map" style="width: 1400px; height: 800px"></div>
+
+	<script type="text/javascript">
+
+var roads = {
+    "type": "FeatureCollection",
+    "features": [
+    	{% for feature in roads %}
+    		{{feature}},
+    	{% endfor %}
+    ]
+}
+
+var bushes = {
+    "type": "FeatureCollection",
+    "features": [
+    	{% for feature in bushes %}
+    		{{feature}},
+    	{% endfor %}
+    ]
+}
+
+var trees = {
+    "type": "FeatureCollection",
+    "features": [
+    	{% for feature in trees %}
+    		{{feature}},
+    	{% endfor %}
+    ]
+}
+
+var grass = {
+    "type": "FeatureCollection",
+    "features": [
+    	{% for feature in grass %}
+    		{{feature}},
+    	{% endfor %}
+    ]
+}
+
+	
+	</script>
+	<script src="./js/leaflet.js"></script>
+
+	<script>
+		var map = L.map('map').setView([{{center[0]}},{{center[1]}}], 17);
+
+
+
+		
+L.tileLayer('http://{s}.tile.cloudmade.com/{key}/22677/256/{z}/{x}/{y}.png', {
+			attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2012 CloudMade',
+			key: 'BC9A493B41014CAABB98F0471D759707'
+		}).addTo(map);
+
+
+
+
+		function onEachFeature(feature, layer) {
+			var popupContent = "<p>" +feature.geometry.type + "</p>";
+
+			if (feature.properties && feature.properties.subtype) {
+				popupContent = "<p>"+feature.properties.subtype+"</p>"+popupContent
+			}
+			
+			if (feature.properties && feature.properties.subname) {
+				popupContent = "<p>"+feature.properties.subname+"</p>"+popupContent
+			}
+
+			layer.bindPopup(popupContent);
+		}
+		L.geoJson(roads,{onEachFeature: onEachFeature}).addTo(map).setStyle({"opacity":1,"weight":0,"color":"red","fillColor":"yellow","fillOpacity":"0.2"});
+		L.geoJson(bushes,{onEachFeature: onEachFeature}).addTo(map).setStyle({"opacity":1,"weight":0,"color":"red","fillColor":"green","fillOpacity":"0.5"});
+		L.geoJson(trees,{onEachFeature: onEachFeature}).addTo(map).setStyle({"opacity":1,"weight":0,"color":"red","fillColor":"#285907","fillOpacity":"0.8"});
+		L.geoJson(grass,{onEachFeature: onEachFeature}).addTo(map).setStyle({"opacity":1,"weight":0,"color":"red","fillColor":"green","fillOpacity":"0.2"});
+
+	</script>
+</body>
+</html>

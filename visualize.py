@@ -62,6 +62,57 @@ def visualize(self,center,**kwargs):
 	template = jinja_environment.get_template('templates/world.html')
 	self.response.out.write(template.render(output))
 
+
+def visualize_blocks(self,matrix,blocks_meta):
+	
+	base_lat = float(42)
+	base_lon = float(-71)
+	d = 0.0001
+	
+	output = {"center":[base_lat,base_lon],"roads":[],"bushes":[],"trees":[],"grass":[]}
+	
+	for row_idx,row_item in enumerate(matrix):
+		for idx,item in enumerate(row_item):
+			
+			dx = idx*d
+			dy = row_idx*d
+	
+			packaged_feature = {
+				"type"		:	"Feature",
+				"properties":	{
+					"subname"	:	blocks_meta[item]["name"],
+					"subtype"	:	item
+				},
+				"geometry"	:	{
+					"type"			:	"Polygon",
+					"coordinates"	:	[[
+						[base_lon+dx,base_lat-dy],
+						[base_lon+dx,base_lat-d-dy],
+						[base_lon+d+dx,base_lat-d-dy],
+						[base_lon+d+dx,base_lat-dy]
+					
+					]]
+				}
+			}
+			
+			if item == 1:
+				output["roads"].append(json.dumps(packaged_feature))
+			elif item == 2:
+				output["bushes"].append(json.dumps(packaged_feature))
+			elif item in [3,4,5,6]:
+				output["trees"].append(json.dumps(packaged_feature))
+			elif item == 7:
+				output["grass"].append(json.dumps(packaged_feature))
+			
+			
+			
+# 	output["blocks"] = output["blocks"][0]
+	
+# 	logging.info(output)
+			
 	
 	
-	
+	jinja_environment = jinja2.Environment(loader=jinja2.FileSystemLoader(os.path.dirname(__file__)))
+	template = jinja_environment.get_template('templates/world_blocks.html')
+	self.response.out.write(template.render(output))
+		

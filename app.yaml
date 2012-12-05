@@ -12,7 +12,7 @@ handlers:
   script: landing.app
 - url: /getdata.*
   script: getdata.app
-- url: /test
+- url: /test.*
   script: test.app
 - url: /world
   script: world.app
