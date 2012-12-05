@@ -65,7 +65,14 @@ def visualize(self,center,**kwargs):
 
 def visualize_blocks(self,matrix,blocks_meta,ul_corner_geo,width,height):
 	'''
-	Width should be in degrees
+	Like this:
+	
+	blocks_meta = {1:{"traverse":True,"name":"road"}}
+ 		
+	visualize.visualize_blocks(self,matrix,blocks_meta,[-71,42],0.0001,0.00005)
+ 		
+ 		
+	Width and height should be in degrees
 	'''
 
 	base_lat = ul_corner_geo[1]
