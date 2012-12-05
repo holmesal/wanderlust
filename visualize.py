@@ -63,19 +63,21 @@ def visualize(self,center,**kwargs):
 	self.response.out.write(template.render(output))
 
 
-def visualize_blocks(self,matrix,blocks_meta):
-	
-	base_lat = float(42)
-	base_lon = float(-71)
-	d = 0.0001
+def visualize_blocks(self,matrix,blocks_meta,ul_corner_geo,width,height):
+	'''
+	Width should be in degrees
+	'''
+
+	base_lat = ul_corner_geo[1]
+	base_lon = ul_corner_geo[0]
 	
 	output = {"center":[base_lat,base_lon],"roads":[],"bushes":[],"trees":[],"grass":[]}
 	
 	for row_idx,row_item in enumerate(matrix):
 		for idx,item in enumerate(row_item):
 			
-			dx = idx*d
-			dy = row_idx*d
+			dx = idx*width
+			dy = row_idx*height
 	
 			packaged_feature = {
 				"type"		:	"Feature",
@@ -87,9 +89,9 @@ def visualize_blocks(self,matrix,blocks_meta):
 					"type"			:	"Polygon",
 					"coordinates"	:	[[
 						[base_lon+dx,base_lat-dy],
-						[base_lon+dx,base_lat-d-dy],
-						[base_lon+d+dx,base_lat-d-dy],
-						[base_lon+d+dx,base_lat-dy]
+						[base_lon+dx,base_lat-height-dy],
+						[base_lon+width+dx,base_lat-height-dy],
+						[base_lon+width+dx,base_lat-dy]
 					
 					]]
 				}
