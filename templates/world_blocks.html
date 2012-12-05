@@ -55,15 +55,22 @@ var grass = {
 	<script src="/js/leaflet.js"></script>
 
 	<script>
-		var map = L.map('map').setView([{{center[0]}},{{center[1]}}], 17);
+		var map = L.map('map').setView([{{center[0]}},{{center[1]}}], 18);
 
 
 
-		
+L.tileLayer('http://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+			maxZoom:25
+		}).addTo(map);	
+
+/*
 L.tileLayer('http://{s}.tile.cloudmade.com/{key}/22677/256/{z}/{x}/{y}.png', {
 			attribution: 'Map data &copy; 2011 OpenStreetMap contributors, Imagery &copy; 2012 CloudMade',
-			key: 'BC9A493B41014CAABB98F0471D759707'
+			key: 'BC9A493B41014CAABB98F0471D759707',
+			maxZoom:25
 		}).addTo(map);
+*/
+
 
 
 
